@@ -29,7 +29,7 @@ const Login = () => {
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
-      background: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("/obra.jpg")',
+      background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/fundo-login.jpg")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundAttachment: 'fixed',
@@ -58,6 +58,25 @@ const Login = () => {
         position: 'relative',
         zIndex: 1
       }}>
+        <button
+          onClick={() => navigate('/')}
+          aria-label="Voltar para a página inicial"
+          style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            fontSize: '20px',
+            color: '#1a202c',
+            padding: '6px',
+          }}
+          onMouseEnter={(e) => e.target.style.opacity = 0.8}
+          onMouseLeave={(e) => e.target.style.opacity = 1}
+        >
+          ←
+        </button>
         <h1 style={{
           textAlign: 'center',
           marginBottom: '1.5rem',
@@ -131,7 +150,7 @@ const Login = () => {
             style={{
               width: '100%',
               padding: '0.75rem',
-              background: '#0056cc',
+              background: '#ff8c00',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
@@ -150,8 +169,8 @@ const Login = () => {
               width: '100%',
               padding: '0.75rem',
               background: '#ffffff',
-              color: '#0056cc',
-              border: '2px solid #0056cc',
+              color: '#ff8c00',
+              border: '2px solid #ff8c00',
               borderRadius: '4px',
               cursor: 'pointer',
               fontSize: '1rem',

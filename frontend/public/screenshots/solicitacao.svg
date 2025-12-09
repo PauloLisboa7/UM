@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" rx="12" fill="#f4fbf6" />
+  <rect x="40" y="40" width="1120" height="720" rx="8" fill="#ffffff" stroke="#e6efe8" />
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="48" fill="#999">Página Solicitação (substitua)</text>
+</svg>

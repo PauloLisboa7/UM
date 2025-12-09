@@ -30,7 +30,7 @@ const Register = () => {
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
-      background: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("/obra.jpg")',
+      background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/fundo-login.jpg")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundAttachment: 'fixed',
@@ -157,7 +157,7 @@ const Register = () => {
             style={{
               width: '100%',
               padding: '0.75rem',
-              background: '#28a745',
+              background: '#ff8c00',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
@@ -171,13 +171,13 @@ const Register = () => {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/login')}
             style={{
               width: '100%',
               padding: '0.75rem',
               background: '#ffffff',
-              color: '#28a745',
-              border: '2px solid #28a745',
+              color: '#ff8c00',
+              border: '2px solid #ff8c00',
               borderRadius: '4px',
               cursor: 'pointer',
               fontSize: '1rem',

@@ -1,0 +1,395 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root{
+  --bg: #ffffff;
+  --muted-bg: #f7f8fb;
+  --accent: #2563eb; /* neutral blue accent */
+  --text: #0b1220;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --glass: rgba(255,255,255,0.75);
+}
+
+/* Smooth scrolling for in-page anchors */
+html { scroll-behavior: smooth; }
+
+/* Base container */
+.splash-container{
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  animation: fadeIn 0.45s ease-out;
+}
+
+/* Navbar */
+.splash-navbar{
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+  box-shadow: 0 6px 20px rgba(16,24,40,0.06);
+  padding: 18px 40px;
+  transition: all 0.3s ease;
+}
+
+/* Hero */
+.splash-hero-section{padding:72px 20px 40px; background: linear-gradient(180deg, rgba(250,250,251,0.98), rgba(247,248,250,0.98)); display:flex; justify-content:center}
+.splash-hero-inner{max-width:1100px; width:100%; display:flex; align-items:center; gap:40px; flex-wrap:wrap}
+.splash-hero-title{font-size:42px; line-height:1.04; font-weight:700; color:var(--text); margin:0}
+.splash-hero-subtitle{font-size:16px; color:var(--muted); margin-top:10px}
+
+/* Section base - ensure visible by default */
+.splash-section{padding:80px 20px; display:block; opacity:1; transform:none}
+.splash-inner{max-width:1100px; width:100%}
+
+/* Quem Somos modern */
+.splash-quem-somos-title{font-size:30px; font-weight:700; margin:0 0 18px; color:var(--text)}
+.splash-quem-somos-text{color:var(--text); font-size:15px; line-height:1.8; margin:0 0 14px; max-width:720px; text-align:left}
+
+/* Quem somos grid: left title, right content on wide screens */
+.splash-quem-somos-grid{display:grid; grid-template-columns:320px 1fr; gap:40px; align-items:start}
+.splash-quem-somos-grid .left{padding-top:8px}
+.splash-quem-somos-grid .right{text-align:left}
+.splash-quem-somos-label{color:#ff8c00; font-size:24px; font-weight:700; margin-bottom:18px; text-transform:uppercase; letter-spacing:1px}
+.splash-quem-somos-title{font-size:28px; font-weight:600; margin:0 0 18px; color:var(--text)}
+.splash-quem-somos-text{color:var(--text); font-size:15px; line-height:1.8; margin:0 auto 14px; max-width:880px; text-align:left}
+
+/* Impacto (KPIs) */
+.splash-impacto-label{color:#ff8c00; font-size:24px; font-weight:700; margin-bottom:18px; text-transform:uppercase; letter-spacing:1px}
+.impacto-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px; margin-top:28px}
+.splash-kpi-number{font-size:36px; font-weight:700; color:var(--text)}
+.splash-kpi-card{background:linear-gradient(180deg, var(--card), #fbfbfb); border-radius:12px; padding:22px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:0 8px 24px rgba(16,24,40,0.06); transition:transform .2s ease, box-shadow .2s ease}
+.splash-kpi-card:hover{transform:translateY(-6px); box-shadow:0 18px 40px rgba(16,24,40,0.08)}
+.splash-kpi-icon{font-size:36px}
+.splash-kpi-number{font-size:36px; font-weight:700; color:var(--text)}
+.splash-kpi-label{font-size:13px; color:var(--muted); font-weight:600; text-align:center}
+
+/* Chart container */
+.splash-chart-container{margin-top:36px; border-radius:12px; padding:28px; background:var(--muted-bg); box-shadow:inset 0 1px 0 rgba(255,255,255,0.6)}
+
+/* Parcerias */
+.splash-parcerias-title{font-size:20px; font-weight:600; margin:0 0 18px}
+.parcerias-logos{display:flex; gap:24px; align-items:center; justify-content:center; flex-wrap:wrap}
+.parcerias-logos img{max-height:110px; object-fit:contain; filter:grayscale(0.04); opacity:0.95}
+.parcerias-card{
+  /* make partner cards match the team avatar style: square, rounded, with shadow */
+  width:220px;
+  height:220px;
+  border-radius:12px;
+  background:var(--card);
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 12px 32px rgba(16,24,40,0.08);
+  overflow:hidden;
+}
+.parcerias-card img{width:100%; height:100%; object-fit:cover; display:block}
+.splash-membro-avatar{width:160px; height:160px; border-radius:12px; background:#e9eef6; display:flex; align-items:center; justify-content:center; overflow:hidden}
+.splash-membro-avatar img{width:100%; height:100%; object-fit:cover}
+
+/* Equipe cards */
+.splash-equipe-grid{display:flex; gap:28px; justify-content:center; flex-wrap:wrap; margin-top:22px}
+.splash-membro-card{width:260px; background:var(--card); border-radius:14px; padding:18px; box-shadow:0 12px 30px rgba(16,24,40,0.06); display:flex; flex-direction:column; align-items:center; gap:12px}
+.splash-membro-name{font-size:16px; font-weight:700; color:var(--text); margin:0}
+.splash-membro-role{font-size:16px; color:var(--accent); font-weight:700}
+
+/* entrance animation helpers (optional) */
+.splash-section.delay-1{animation:fadeUp 0.7s ease-out forwards; animation-delay:0.08s}
+.splash-section.delay-2{animation:fadeUp 0.7s ease-out forwards; animation-delay:0.16s}
+.splash-section.delay-3{animation:fadeUp 0.7s ease-out forwards; animation-delay:0.24s}
+
+@keyframes fadeUp{from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:translateY(0)}}
+
+/* Footer minimal */
+.splash-footer{padding:48px 20px; background:#fafafa}
+
+/* Utilities */
+.center-block{margin-left:auto;margin-right:auto;text-align:center}
+
+/* Animations kept */
+@keyframes fadeIn {from{opacity:0}to{opacity:1}}
+@keyframes fadeInUp {from{opacity:0; transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* Responsive */
+@media (max-width: 1100px){
+  .impacto-grid{grid-template-columns:repeat(4,1fr)}
+  .splash-hero-title{font-size:34px}
+  .splash-quem-somos-grid{grid-template-columns:1fr}
+  .splash-quem-somos-text{text-align:center}
+}
+@media (max-width: 720px){
+  .impacto-grid{grid-template-columns:1fr}
+  .splash-membro-card{width:100%; max-width:360px}
+  .splash-hero-title{font-size:28px}
+  .splash-hero-inner{padding:0 12px}
+  /* Make partner cards smaller on mobile */
+  .parcerias-card{width:180px; height:180px; padding:0}
+  .parcerias-card img{max-height:180px; object-fit:cover}
+}
+
+/* Navbar micro-interactions */
+.splash-menu-link { position: relative; transition: color 0.3s ease; }
+.splash-menu-link::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.3s ease; }
+.splash-menu-link:hover::after { width: 100%; }
+
+.splash-btn-primary { position: relative; overflow: hidden; transition: all 0.3s ease; }
+.splash-btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: rgba(255,255,255,0.12); transition: left 0.5s ease; }
+.splash-btn-primary:hover::before { left: 100%; }
+.splash-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37,99,235,0.08); }
+
+.splash-hero-section { animation: fadeInUp 0.8s ease-out 0.12s both; }
+.splash-hero-title { animation: fadeUp 0.7s ease-out 0.16s both; }
+
+
+.splash-kpi-number {
+  font-size: 44px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+}
+
+.splash-kpi-label {
+  font-size: 14px !important;
+  color: #1a1a2e !important;
+  margin: 0 !important;
+  font-weight: 500 !important;
+}
+
+/* Seção Parcerias */
+.splash-parcerias-label {
+  color: #ff8c00 !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  margin: 0 0 18px 0 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.splash-parcerias-title {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  color: #1a1a2e !important;
+  margin: 0 0 20px 0 !important;
+  line-height: 1.3 !important;
+  max-width: 900px !important;
+}
+
+/* Seção Equipe */
+.splash-equipe-label {
+  color: #ff8c00 !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  margin: 0 0 20px 0 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.splash-equipe-title {
+  font-size: 30px !important;
+  font-weight: 600 !important;
+  color: #1a1a2e !important;
+  margin: 0 0 40px 0 !important;
+  line-height: 1.25 !important;
+  max-width: 800px !important;
+}
+
+.splash-membro-card {
+  animation: fadeInUp 0.6s ease-out;
+  transition: all 0.3s ease;
+}
+
+.splash-membro-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.splash-card {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.splash-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.splash-chart-container {
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+  transition: all 0.3s ease;
+}
+
+.splash-chart-container:hover {
+  transform: translateY(-4px);
+}
+
+/* showcase removed */
+
+.splash-footer {
+  animation: fadeIn 0.6s ease-out;
+  transition: all 0.3s ease;
+}
+
+.splash-footer:hover {
+  transform: translateY(-2px);
+}
+
+.splash-scroll-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: #ff8c00;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
+.splash-scroll-top-btn.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.splash-scroll-top-btn:hover {
+  background: #e67e00;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4);
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .splash-scroll-top-btn {
+    width: 45px;
+    height: 45px;
+    bottom: 20px;
+    right: 20px;
+    font-size: 20px;
+  }
+
+  .splash-hero-title {
+    font-size: 30px !important;
+  }
+
+  .splash-impacto-title {
+    font-size: 26px !important;
+  }
+
+  .splash-equipe-title {
+    font-size: 26px !important;
+  }
+
+  .splash-quem-somos-title {
+    font-size: 20px !important;
+  }
+
+  .splash-parcerias-title {
+    font-size: 20px !important;
+  }
+
+  .splash-kpi-number {
+    font-size: 34px !important;
+  }
+
+  /* Make member role slightly larger on mobile for readability */
+  .splash-membro-role { font-size: 15px !important; }
+
+  /* responsive showcase rules removed */
+}
+
+/* Showcase de screenshots (cards com borda e sombra) */
+.splash-showcase-section{
+  position:relative;
+  padding: 0 20px 100px;
+  background: transparent;
+}
+.splash-showcase{
+  max-width:1200px;
+  margin: 0 auto;
+  display:flex;
+  gap:40px;
+  justify-content:center;
+  align-items:flex-end;
+  transform: translateY(0); /* não deslocar para cima para não cobrir o título */
+  margin-top: 8px;
+}
+.splash-showcase-card{
+  width: 360px;
+  height: 260px;
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid rgba(16,24,40,0.06);
+  box-shadow: 0 22px 48px rgba(16,24,40,0.10);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.splash-showcase-card--center{ transform: translateY(-26px); width:440px; height:300px }
+.splash-showcase-card img{ width:100%; height:100%; object-fit:cover; display:block }
+.splash-showcase-accent{
+  /* accent removed per user request */
+}
+
+@media (max-width: 900px){
+  .splash-showcase{ gap:24px; transform: translateY(0); }
+  .splash-showcase-card{ width:300px; height:220px }
+  .splash-showcase-card--center{ width:360px; height:260px; transform: translateY(-18px) }
+}
+
+@media (max-width: 520px){
+  .splash-showcase{ flex-direction:column; transform:translateY(0); gap:18px }
+  .splash-showcase-card, .splash-showcase-card--center{ width:95%; height:220px; transform:none }
+  .splash-showcase-section{ padding-bottom:40px }
+}
+

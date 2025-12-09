@@ -4,6 +4,9 @@ import MapSelector from "../components/MapSelector";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
+import { FaSearch, FaPrint, FaFilePdf, FaFileExcel } from 'react-icons/fa';
+
+import "../App.home.css";
 
 export default function Home() {
   const { isAdmin } = useAuth();
@@ -280,192 +283,122 @@ export default function Home() {
     <div className="app-container">
       <Navbar />
       <main className="main-content" style={{ marginLeft: 240 }}>
-        <h1 style={{
-          fontSize: "2rem",
-          fontWeight: "bold",
-          marginBottom: "1.5rem",
-          color: "var(--text)",
-          textAlign: "center"
-        }}>
+        <h1 className="page-title">
           {isAdmin() ? 'Painel de Controle' : 'Demandas Comunitárias e Mapa de Obras'}
         </h1>
 
         {/* Se for admin, mostrar resumo de monitoramento com cartões e tabela de solicitações */}
         {isAdmin() ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '1.5rem' }}>
-            <div style={{ width: '100%', maxWidth: 1100, background: 'var(--card-bg)', padding: 20, borderRadius: 12, boxShadow: '0 12px 30px rgba(0,0,0,0.06)' }}>
-              <h2 style={{ margin: 0, marginBottom: 12, fontSize: '1.25rem', fontWeight: 700, color: 'var(--text)' }}>Monitoramento de Obras</h2>
-              <div style={{ color: 'var(--muted)', marginBottom: 16 }}>Acompanhe o andamento de todas as obras em tempo real</div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 12 }}>
-                <div style={{ display: 'flex', background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 8px 20px rgba(2,6,23,0.04)', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 6, height: 48, borderRadius: 4, background: '#3b82f6' }} />
+          <div className="admin-dashboard">
+            <div className="dashboard-card">
+              <h2>Monitoramento de Obras</h2>
+              <p>Acompanhe o andamento de todas as obras em tempo real</p>
+              <div className="card-grid">
+                <div className="card">
+                  <div className="card-icon" style={{ background: '#3b82f6' }}></div>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>Total de Obras</div>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{obras.length}</div>
+                    <p>Total de Obras</p>
+                    <h3>{obras.length}</h3>
                   </div>
                 </div>
-                <div style={{ display: 'flex', background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 8px 20px rgba(2,6,23,0.04)', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 6, height: 48, borderRadius: 4, background: '#f97316' }} />
+                <div className="card">
+                  <div className="card-icon" style={{ background: '#f97316' }}></div>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>Em Andamento</div>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{obras.filter(o => o.status === 'em_andamento').length}</div>
+                    <p>Em Andamento</p>
+                    <h3>{obras.filter(o => o.status === 'em_andamento').length}</h3>
                   </div>
                 </div>
-                <div style={{ display: 'flex', background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 8px 20px rgba(2,6,23,0.04)', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 6, height: 48, borderRadius: 4, background: '#10b981' }} />
+                <div className="card">
+                  <div className="card-icon" style={{ background: '#10b981' }}></div>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>Concluídas</div>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{obras.filter(o => o.status === 'concluida' || o.status === 'concluídas').length}</div>
+                    <p>Concluídas</p>
+                    <h3>{obras.filter(o => o.status === 'concluida' || o.status === 'concluídas').length}</h3>
                   </div>
                 </div>
-                <div style={{ display: 'flex', background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 8px 20px rgba(2,6,23,0.04)', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 6, height: 48, borderRadius: 4, background: '#ef4444' }} />
+                <div className="card">
+                  <div className="card-icon" style={{ background: '#ef4444' }}></div>
                   <div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>Paradas</div>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{obras.filter(o => o.status === 'parada' || o.status === 'cancelada' || o.status === 'paradas').length}</div>
+                    <p>Paradas</p>
+                    <h3>{obras.filter(o => o.status === 'parada' || o.status === 'cancelada' || o.status === 'paradas').length}</h3>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Seção: Solicitações de Novas Obras */}
-              <div style={{ marginTop: 18 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Solicitações de Novas Obras</h3>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={imprimirSolicitacoes} className="btn-ghost" style={{ padding: '0.5rem 0.8rem' }}>Imprimir</button>
-                    <button onClick={exportarPDFSolicitacoes} className="btn-ghost" style={{ padding: '0.5rem 0.8rem' }}>Exportar PDF</button>
-                    <button onClick={exportarCSVSolicitacoes} className="btn-primary" style={{ padding: '0.5rem 0.8rem' }}>Exportar Excel</button>
-                  </div>
+            <div className="solicitacoes-section">
+              <div className="section-header">
+                <h3>Solicitações de Novas Obras</h3>
+                <div className="action-buttons">
+                  <button onClick={imprimirSolicitacoes} className="btn-ghost">
+                    <FaPrint /> Imprimir
+                  </button>
+                  <button onClick={exportarPDFSolicitacoes} className="btn-ghost">
+                    <FaFilePdf /> Exportar PDF
+                  </button>
+                  <button onClick={exportarCSVSolicitacoes} className="btn-primary">
+                    <FaFileExcel /> Exportar Excel
+                  </button>
                 </div>
+              </div>
 
-                <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #eef2f6' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr style={{ textTransform: 'uppercase', fontSize: 12, color: '#6b7280' }}>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>N°</th>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>TÍTULO</th>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>BAIRRO</th>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>STATUS</th>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>PROGRESSO</th>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>INÍCIO</th>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>FIM</th>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>ATUALIZADO EM</th>
-                        <th style={{ padding: 12, borderBottom: '1px solid #eef2f6', textAlign: 'left' }}>AÇÕES</th>
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>N°</th>
+                      <th>TÍTULO</th>
+                      <th>BAIRRO</th>
+                      <th>STATUS</th>
+                      <th>PROGRESSO</th>
+                      <th>INÍCIO</th>
+                      <th>FIM</th>
+                      <th>ATUALIZADO EM</th>
+                      <th>AÇÕES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {demandas.length === 0 ? (
+                      <tr>
+                        <td colSpan={9} className="empty-state">
+                          <FaSearch className="empty-icon" />
+                          <p>Nenhuma solicitação encontrada</p>
+                          <small>Tente ajustar os filtros de busca</small>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {demandas.length === 0 ? (
-                        <tr>
-                          <td colSpan={9} style={{ padding: 48, textAlign: 'center', color: '#9ca3af' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                              <div style={{ width: 44, height: 44, borderRadius: 44, background: '#eef2f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🔍</div>
-                              <div style={{ fontWeight: 700 }}>Nenhuma solicitação encontrada</div>
-                              <div>Tente ajustar os filtros de busca</div>
-                            </div>
+                    ) : (
+                      demandas.map((d, i) => (
+                        <tr key={d.id}>
+                          <td>{i + 1}</td>
+                          <td>{d.titulo}</td>
+                          <td>{d.bairro}</td>
+                          <td>{d.status}</td>
+                          <td>-</td>
+                          <td>{d.created_at ? new Date(d.created_at).toLocaleDateString() : '-'}</td>
+                          <td>-</td>
+                          <td>{d.updated_at ? new Date(d.updated_at).toLocaleDateString() : '-'}</td>
+                          <td>
+                            {isAdmin && isAdmin() && (
+                              <div className="action-group">
+                                {d.status === 'pendente' ? (
+                                  <button onClick={async () => { try { await api.put(`/demandas/${d.id}`, { status: 'confirmada' }); carregarDemandas(); } catch (err) { console.error('Erro ao confirmar demanda:', err); alert('Erro ao confirmar demanda'); } }} className="btn-primary">Verificar / Confirmar</button>
+                                ) : (
+                                  <span className="status-confirmed">Confirmada</span>
+                                )}
+                                <button onClick={async () => { if (confirm('Deseja deletar esta demanda?')) { try { await api.delete(`/demandas/${d.id}`); carregarDemandas(); } catch (err) { console.error('Erro ao deletar demanda:', err); alert('Erro ao deletar demanda'); } } }} className="btn-ghost">Excluir</button>
+                              </div>
+                            )}
                           </td>
                         </tr>
-                      ) : (
-                        demandas.map((d, i) => (
-                          <tr key={d.id}>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{i + 1}</td>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{d.titulo}</td>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{d.bairro}</td>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{d.status}</td>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>-</td>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{d.created_at ? new Date(d.created_at).toLocaleDateString() : '-'}</td>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>-</td>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{d.updated_at ? new Date(d.updated_at).toLocaleDateString() : '-'}</td>
-                            <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>
-                              {isAdmin && isAdmin() ? (
-                                <div style={{ display: 'flex', gap: 8 }}>
-                                  {d.status === 'pendente' ? (
-                                    <button onClick={async () => { try { await api.put(`/demandas/${d.id}`, { status: 'confirmada' }); carregarDemandas(); } catch (err) { console.error('Erro ao confirmar demanda:', err); alert('Erro ao confirmar demanda'); } }} className="btn-primary" style={{ padding: '0.4rem 0.6rem' }}>Verificar / Confirmar</button>
-                                  ) : d.status === 'confirmada' || d.status === 'confirmado' ? (
-                                    <div style={{ padding: '0.4rem 0.6rem', background: '#3b82f6', color: 'white', borderRadius: 6, fontSize: 13 }}>Confirmada</div>
-                                  ) : null}
-                                  <button onClick={async () => { if (confirm('Deseja deletar esta demanda?')) { try { await api.delete(`/demandas/${d.id}`); carregarDemandas(); } catch (err) { console.error('Erro ao deletar demanda:', err); alert('Erro ao deletar demanda'); } } }} className="btn-ghost" style={{ padding: '0.4rem 0.6rem' }}>Excluir</button>
-                                </div>
-                              ) : null}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-            <div style={{ width: '100%', maxWidth: 1000, background: 'var(--card-bg)', padding: '1rem', borderRadius: 12, boxShadow: '0 12px 30px rgba(0,0,0,0.08)' }}>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                <div style={{ flex: '1 1 480px', minWidth: 320 }}>
-                  <h2 style={{ marginBottom: 12, fontWeight: 700, color: 'var(--text)' }}>Solicitação de Nova Obra</h2>
-                  <p style={{ marginBottom: 16, color: 'var(--muted)' }}>Preencha a descrição, local e data pretendida. Selecione um ponto no mapa para definir coordenadas (latitude/longitude).</p>
-                  <form onSubmit={criarSolicitacao} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <textarea
-                      placeholder="Descrição da solicitação"
-                      value={descricaoSolicitacao}
-                      onChange={(e) => setDescricaoSolicitacao(e.target.value)}
-                      required
-                      style={{ minHeight: 120, padding: 12, borderRadius: 8, border: '1px solid var(--border)', resize: 'vertical' }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Lugar (bairro / referência)"
-                      value={lugarSolicitacao}
-                      onChange={(e) => setLugarSolicitacao(e.target.value)}
-                      required
-                      style={{ padding: 12, borderRadius: 8, border: '1px solid var(--border)' }}
-                    />
-                    {lugarSolicitacao && (
-                      <small style={{ color: geocodeStatus === 'not_found' || geocodeStatus === 'error' ? '#ef4444' : '#6b7280' }}>
-                        {geocodeStatus === 'loading' && 'Localizando bairro no mapa...'}
-                        {geocodeStatus === 'done' && 'Coordenadas preenchidas automaticamente.'}
-                        {geocodeStatus === 'not_found' && 'Não encontramos esse bairro. Clique no mapa para selecionar manualmente.'}
-                        {geocodeStatus === 'error' && 'Erro ao buscar a localização. Tente novamente ou selecione direto no mapa.'}
-                      </small>
-                    )}
-                    <input
-                      type="date"
-                      value={dataSolicitacao}
-                      onChange={(e) => setDataSolicitacao(e.target.value)}
-                      required
-                      style={{ padding: 12, borderRadius: 8, border: '1px solid var(--border)', maxWidth: 240 }}
-                    />
-
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: 12, color: 'var(--muted)' }}>Latitude</label>
-                        <input type="text" readOnly value={solicitacaoLatitude ?? ''} placeholder="Clique no mapa" style={{ padding: 8, borderRadius: 6, border: '1px solid var(--border)', minWidth: 160 }} />
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ fontSize: 12, color: 'var(--muted)' }}>Longitude</label>
-                        <input type="text" readOnly value={solicitacaoLongitude ?? ''} placeholder="Clique no mapa" style={{ padding: 8, borderRadius: 6, border: '1px solid var(--border)', minWidth: 160 }} />
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-                      <button type="submit" className="btn-primary" style={{ padding: '0.6rem 1rem' }}>Enviar Solicitação</button>
-                      <button type="button" onClick={() => { setDescricaoSolicitacao(''); setLugarSolicitacao(''); setDataSolicitacao(''); setSolicitacaoLatitude(null); setSolicitacaoLongitude(null); }} className="btn-secondary" style={{ padding: '0.6rem 1rem' }}>Limpar</button>
-                    </div>
-                  </form>
-                </div>
-
-                <div style={{ width: 420, height: 360, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)' }}>
-                  <MapSelector
-                    focusPoint={mapFocus}
-                    onSelect={({ lat, lng }) => {
-                      setSolicitacaoLatitude(lat);
-                      setSolicitacaoLongitude(lng);
-                      setMapFocus({ lat, lng });
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="user-dashboard">
+            {/* User-specific content */}
           </div>
         )}
       </main>
