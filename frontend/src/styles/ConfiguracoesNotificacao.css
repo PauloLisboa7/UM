@@ -1,0 +1,60 @@
+.config-notificacao-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.config-header {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.config-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.config-option {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.config-option:hover {
+  background: #f9f9f9;
+}
+
+.config-option:last-child {
+  border-bottom: none;
+}
+
+.config-option label {
+  flex: 1;
+}
+
+input[type="checkbox"] {
+  accent-color: #FF8C00;
+}
+
+input[type="range"] {
+  accent-color: #FF8C00;
+}
+
+select, input[type="text"] {
+  font-family: inherit;
+}
+
+@media (max-width: 768px) {
+  .config-notificacao-container {
+    padding: 30px 16px;
+  }
+
+  .config-section {
+    padding: 16px;
+  }
+}

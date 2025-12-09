@@ -28,14 +28,27 @@ export const login = async (req, res) => {
   }
 };
 
+import { sendWelcomeEmail } from '../config/mailer.js';
+
 export const register = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, email } = req.body;
   try {
     const existingUser = await getUserByUsername(username);
     if (existingUser) return res.status(400).json({ message: 'Usuário já existe' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await createUser(username, hashedPassword, 'user');
+    const newUser = await createUser(username, hashedPassword, 'user', email);
+
+    // Envia e-mail de boas-vindas
+    if (email) {
+      try {
+        await sendWelcomeEmail(email, username);
+      } catch (mailError) {
+        // Apenas loga o erro, não impede o cadastro
+        console.error('Erro ao enviar e-mail:', mailError);
+      }
+    }
+
     res.status(201).json({ message: 'Usuário criado', user: newUser });
   } catch (error) {
     res.status(500).json({ message: 'Erro no registro', error });

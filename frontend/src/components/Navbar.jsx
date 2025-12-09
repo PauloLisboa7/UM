@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useTheme } from "../contexts/ThemeContext";
 
 export default function Navbar() {
-  const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
 
   // Top bar simplificada e menu lateral à esquerda.

@@ -1,61 +1,80 @@
-import { supabase } from "../config/db.js";
+import { query } from "../config/db.js";
 
 const table = "estruturas_culturais";
 
 export const listarEstruturas = async () => {
-  const { data, error } = await supabase
-    .from(table)
-    .select("*")
-    .order("nome", { ascending: true });
-
-  if (error) throw error;
-  return data;
+  try {
+    const result = await query(
+      `SELECT * FROM ${table} ORDER BY nome ASC`
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Erro ao listar estruturas:', error);
+    throw error;
+  }
 };
 
 export const criarEstrutura = async (estrutura) => {
-  const { data, error } = await supabase
-    .from(table)
-    .insert(estrutura)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    const keys = Object.keys(estrutura);
+    const values = Object.values(estrutura);
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
+    
+    const result = await query(
+      `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders}) RETURNING *`,
+      values
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.error('Erro ao criar estrutura:', error);
+    throw error;
+  }
 };
 
 export const atualizarEstrutura = async (id, updates) => {
-  const { data, error } = await supabase
-    .from(table)
-    .update(updates)
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    const keys = Object.keys(updates);
+    const values = Object.values(updates);
+    const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(', ');
+    
+    const result = await query(
+      `UPDATE ${table} SET ${setClause} WHERE id = $${keys.length + 1} RETURNING *`,
+      [...values, id]
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.error('Erro ao atualizar estrutura:', error);
+    throw error;
+  }
 };
 
 export const deletarEstrutura = async (id) => {
-  const { data, error } = await supabase
-    .from(table)
-    .delete()
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    const result = await query(
+      `DELETE FROM ${table} WHERE id = $1 RETURNING *`,
+      [id]
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.error('Erro ao deletar estrutura:', error);
+    throw error;
+  }
 };
 
 export const obterEstrutura = async (identifier) => {
-  const isNumeric = !Number.isNaN(Number(identifier));
-  const { data, error } = await supabase
-    .from(table)
-    .select("*")
-    .eq(isNumeric ? "id" : "slug", isNumeric ? Number(identifier) : identifier)
-    .maybeSingle();
-
-  if (error) throw error;
-  return data;
+  try {
+    const isNumeric = !Number.isNaN(Number(identifier));
+    const column = isNumeric ? 'id' : 'slug';
+    const value = isNumeric ? Number(identifier) : identifier;
+    
+    const result = await query(
+      `SELECT * FROM ${table} WHERE ${column} = $1`,
+      [value]
+    );
+    return result.rows[0] || null;
+  } catch (error) {
+    console.error('Erro ao obter estrutura:', error);
+    throw error;
+  }
 };
 

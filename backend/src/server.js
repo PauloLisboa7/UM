@@ -2,11 +2,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import demandaRoutes from "./routes/demandaRoutes.js";
-import obraRoutes from "./routes/obraRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import estruturaRoutes from "./routes/estruturaRoutes.js";
-import { supabase } from "./config/db.js";
+import solicitacaoRoutes from "./routes/solicitacaoRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import { db } from "./config/db.js";
 
 dotenv.config();
 
@@ -14,28 +13,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/demandas", demandaRoutes);
-app.use("/api/obras", obraRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/estruturas", estruturaRoutes);
+app.use("/api/solicitacoes", solicitacaoRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Rotas de exemplo
 app.get("/", (req, res) => {
   res.send("API da Plataforma de Transparência está rodando 🚀");
 });
 
-// Função para testar conexão com o Supabase (tenta ler 1 registro da tabela 'obras')
+// Função para testar conexão com o Neon (tenta ler 1 registro da tabela 'users')
 async function testarConexaoDB() {
   try {
-    const { data, error } = await supabase.from('obras').select('id').limit(1);
-    if (error) {
-      console.error('Erro ao acessar Supabase:', error.message || error);
-      return false;
-    }
-    console.log('Supabase: conexão verificada (consulta de teste OK).');
+    const result = await db.query('SELECT id FROM users LIMIT 1');
+    console.log('Neon: conexão verificada (consulta de teste OK).');
     return true;
   } catch (err) {
-    console.error('Erro ao testar Supabase:', err);
+    console.error('Erro ao testar Neon:', err.message);
     return false;
   }
 }
@@ -47,7 +41,7 @@ const PORT = process.env.PORT || 5000;
 (async () => {
   const ok = await testarConexaoDB();
   if (!ok) {
-    console.warn('Aviso: não foi possível verificar o Supabase na inicialização. Se as variáveis de ambiente estiverem corretas, verifique a conectividade da rede e as chaves. O servidor continuará inicializando.');
+    console.warn('Aviso: não foi possível verificar o Neon na inicialização. Se as variáveis de ambiente estiverem corretas, verifique a conectividade da rede e a URL de conexão. O servidor continuará inicializando.');
   }
 
   app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));

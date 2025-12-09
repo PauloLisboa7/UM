@@ -1,16 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-// removed recharts import because Impacto Local chart was removed
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import './Splash.css';
-
-// Defensive declarations: if any cached code still references Recharts symbols
-// these variables will exist (as undefined) and avoid ReferenceError at runtime.
-/* eslint-disable no-unused-vars */
-let ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell;
-/* eslint-enable no-unused-vars */
 
 const Splash = () => {
   const navigate = useNavigate();
+  const [hoveredCard, setHoveredCard] = React.useState(null);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -286,16 +281,52 @@ const Splash = () => {
         <div style={{ width: '100%', maxWidth: 1100, marginTop: 28 }}>
           <section className="splash-showcase-section">
             <div className="splash-showcase">
-              <div className="splash-showcase-card">
-                <img src="/screenshots/home.svg" alt="Página Inicial" />
+              {/* Card 1: Página Inicial */}
+              <div className="splash-showcase-card" onMouseEnter={() => setHoveredCard(0)} onMouseLeave={() => setHoveredCard(null)}>
+                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                  <img src="/screenshots/pagina 1.png" alt="Página Inicial" />
+                  <div className="splash-card-tooltip-circle" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                    <div className="splash-tooltip-dot"></div>
+                    {hoveredCard === 0 && (
+                      <div className="splash-tooltip-box">
+                        Página inicial com visão geral do CleanWork e acesso rápido às funcionalidades principais
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Página Inicial</p>
               </div>
 
-              <div className="splash-showcase-card splash-showcase-card--center">
-                <img src="/screenshots/login.svg" alt="Página Login" />
+              {/* Card 2: Cadastro de Usuário */}
+              <div className="splash-showcase-card splash-showcase-card--center" onMouseEnter={() => setHoveredCard(1)} onMouseLeave={() => setHoveredCard(null)}>
+                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                  <img src="/screenshots/pagina 2.png" alt="Cadastro de Usuário" />
+                  <div className="splash-card-tooltip-circle" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                    <div className="splash-tooltip-dot"></div>
+                    {hoveredCard === 1 && (
+                      <div className="splash-tooltip-box">
+                        Faça seu cadastro com email e senha para começar a usar o CleanWork
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Cadastro de Usuário</p>
               </div>
 
-              <div className="splash-showcase-card">
-                <img src="/screenshots/solicitacao.svg" alt="Página Solicitação" />
+              {/* Card 3: Solicitar Reclamação */}
+              <div className="splash-showcase-card" onMouseEnter={() => setHoveredCard(2)} onMouseLeave={() => setHoveredCard(null)}>
+                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                  <img src="/screenshots/pagina 3.png" alt="Solicitar Reclamação" />
+                  <div className="splash-card-tooltip-circle" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                    <div className="splash-tooltip-dot"></div>
+                    {hoveredCard === 2 && (
+                      <div className="splash-tooltip-box">
+                        Reporte problemas com infraestrutura e limpeza urbana na sua região
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Solicitar Reclamação</p>
               </div>
             </div>
           </section>
@@ -318,19 +349,93 @@ const Splash = () => {
 
         {/* Título principal */}
         <h2 className="splash-impacto-title" style={{ fontSize: '30px', fontWeight: 600, margin: '0 0 12px 0' }}>
-          O Impacto do CleanWork em São Luís
+          Obras em Tempo Real em São Luís
         </h2>
 
-        {/* Cards com KPIs */}
+        {/* Gráfico de Status das Obras */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '40px',
+          width: '100%',
+          maxWidth: '1100px',
+          marginTop: '60px',
+        }}>
+          {/* Gráfico Pie - Status das Obras */}
+          <div className="splash-chart-container" style={{
+            backgroundColor: '#f9f9f9',
+            borderRadius: '12px',
+            padding: '30px',
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 20px 0', color: '#333' }}>
+              Status das Obras
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Em Andamento', value: 156, color: '#FF8C00' },
+                    { name: 'Concluídas', value: 89, color: '#4CAF50' },
+                    { name: 'Pendentes', value: 52, color: '#F44336' },
+                    { name: 'Pausadas', value: 28, color: '#FFC107' },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value }) => `${name}: ${value}`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  <Cell fill="#FF8C00" />
+                  <Cell fill="#4CAF50" />
+                  <Cell fill="#F44336" />
+                  <Cell fill="#FFC107" />
+                </Pie>
+                <Tooltip formatter={(value) => `${value} obras`} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Gráfico Bar - Obras por Bairro */}
+          <div className="splash-chart-container" style={{
+            backgroundColor: '#f9f9f9',
+            borderRadius: '12px',
+            padding: '30px',
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 20px 0', color: '#333' }}>
+              Obras por Bairro (Top 5)
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={[
+                  { name: 'Centro', value: 45 },
+                  { name: 'Praia Grande', value: 38 },
+                  { name: 'Calhau', value: 32 },
+                  { name: 'São Francisco', value: 28 },
+                  { name: 'Anil', value: 22 },
+                ]}
+                margin={{ top: 20, right: 30, left: 0, bottom: 60 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                <YAxis />
+                <Tooltip formatter={(value) => `${value} obras`} />
+                <Bar dataKey="value" fill="#FF8C00" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* KPIs em tempo real */}
         <div style={{
           display: 'flex',
           gap: '40px',
           justifyContent: 'center',
-          marginBottom: '80px',
-          flexWrap: 'nowrap',
-          overflowX: 'auto',
+          marginTop: '80px',
+          flexWrap: 'wrap',
         }}>
-          {/* KPI 1 - Total de Ocorrências */}
+          {/* KPI 1 - Total de Obras */}
           <div className="splash-kpi-card" style={{
             display: 'flex',
             flexDirection: 'column',
@@ -339,21 +444,23 @@ const Splash = () => {
             minWidth: '180px',
           }}>
             <div className="splash-kpi-icon" style={{
-              color: '#ff8c00',
+              color: '#0066cc',
+              fontSize: '28px',
+              fontWeight: 'bold',
             }}>
-              📋
+              ▪
             </div>
             <p className="splash-kpi-number" style={{
-              color: '#ff8c00',
+              color: '#0066cc',
             }}>
-              12.500
+              325
             </p>
             <p className="splash-kpi-label">
-              Solicitações
+              Total de Obras
             </p>
           </div>
 
-          {/* KPI 2 - Resolvidas */}
+          {/* KPI 2 - Em Andamento */}
           <div className="splash-kpi-card" style={{
             display: 'flex',
             flexDirection: 'column',
@@ -362,98 +469,69 @@ const Splash = () => {
             minWidth: '180px',
           }}>
             <div className="splash-kpi-icon" style={{
-              color: '#4caf50',
+              color: '#0066cc',
+              fontSize: '24px',
             }}>
-              ✓
+              ⟳
             </div>
             <p className="splash-kpi-number" style={{
-              color: '#4caf50',
+              color: '#0066cc',
             }}>
-              8.900
-            </p>
-            <p className="splash-kpi-label">
-              Obras Resolvidas
-            </p>
-          </div>
-
-          {/* KPI 3 - Bairro com mais reportes */}
-          <div className="splash-kpi-card" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px',
-            minWidth: '180px',
-          }}>
-            <div className="splash-kpi-icon" style={{
-              color: '#2196f3',
-            }}>
-              📍
-            </div>
-            <p className="splash-kpi-number" style={{
-              color: '#2196f3',
-            }}>
-              1.200
-            </p>
-            <p className="splash-kpi-label">
-              Estruturas Culturais
-            </p>
-          </div>
-
-          {/* KPI 4 - Tempo médio de resolução */}
-          <div className="splash-kpi-card" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px',
-            minWidth: '180px',
-          }}>
-            <div className="splash-kpi-icon" style={{
-              color: '#ff9800',
-            }}>
-              ⏱️
-            </div>
-            <p className="splash-kpi-number" style={{
-              color: '#ff9800',
-            }}>
-              21
+              156
             </p>
             <p className="splash-kpi-label">
               Em Andamento
             </p>
           </div>
-        </div>
 
-        {/* Gráfico de Tipos de Problemas */}
-        {typeof ResponsiveContainer !== 'undefined' ? (
-          <div className="splash-chart-container" style={{
-            width: '100%',
-            maxWidth: '900px',
-            backgroundColor: '#f9f9f9',
-            borderRadius: '12px',
-            padding: '40px',
-            marginTop: '40px',
+          {/* KPI 3 - Concluídas */}
+          <div className="splash-kpi-card" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+            minWidth: '180px',
           }}>
-            <ResponsiveContainer width="100%" height={340}>
-              <BarChart
-                data={[
-                  { name: 'Buracos', count: 3200 },
-                  { name: 'Iluminação Falha', count: 2800 },
-                  { name: 'Calçada Quebrada', count: 2400 },
-                  { name: 'Coleta de Lixo', count: 2000 },
-                  { name: 'Mato Crescido', count: 1600 },
-                  { name: 'Outros', count: 900 },
-                ]}
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-                <YAxis />
-                <Tooltip formatter={(value) => value.toLocaleString('pt-BR')} />
-                <Bar dataKey="count" fill="#ff8c00" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="splash-kpi-icon" style={{
+              color: '#0066cc',
+              fontSize: '24px',
+            }}>
+              ✓
+            </div>
+            <p className="splash-kpi-number" style={{
+              color: '#0066cc',
+            }}>
+              89
+            </p>
+            <p className="splash-kpi-label">
+              Concluídas
+            </p>
           </div>
-        ) : null }
+
+          {/* KPI 4 - Taxa de Conclusão */}
+          <div className="splash-kpi-card" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+            minWidth: '180px',
+          }}>
+            <div className="splash-kpi-icon" style={{
+              color: '#0066cc',
+              fontSize: '20px',
+            }}>
+              ◇
+            </div>
+            <p className="splash-kpi-number" style={{
+              color: '#0066cc',
+            }}>
+              27%
+            </p>
+            <p className="splash-kpi-label">
+              Taxa de Conclusão
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Seção "Parcerias" */}
@@ -666,8 +744,8 @@ const Splash = () => {
               <div style={{ marginTop: '16px', display: 'flex', gap: '12px' }}>
                 <a href="#" style={{ fontSize: '18px', textDecoration: 'none' }}>f</a>
                 <a href="#" style={{ fontSize: '18px', textDecoration: 'none' }}>in</a>
-                <a href="#" style={{ fontSize: '18px', textDecoration: 'none' }}>📷</a>
-                <a href="#" style={{ fontSize: '18px', textDecoration: 'none' }}>▶️</a>
+                <a href="#" style={{ fontSize: '18px', textDecoration: 'none' }}>◉</a>
+                <a href="#" style={{ fontSize: '18px', textDecoration: 'none' }}>▶</a>
               </div>
             </div>
           </div>

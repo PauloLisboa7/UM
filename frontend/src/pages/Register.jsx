@@ -4,6 +4,7 @@ import api from '../services/api.js';
 
 const Register = () => {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,7 +17,7 @@ const Register = () => {
       return;
     }
     try {
-      await api.post('/auth/register', { username, password });
+      await api.post('/auth/register', { username, email, password });
       alert('Cadastro realizado com sucesso! Faça login.');
       navigate('/');
     } catch (err) {
@@ -68,6 +69,31 @@ const Register = () => {
           Cadastro de Usuário
         </h1>
         <form onSubmit={handleSubmit}>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{
+                        display: 'block',
+                        marginBottom: '0.5rem',
+                        color: '#1a202c',
+                        fontWeight: '600'
+                      }}>
+                        E-mail:
+                      </label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '1px solid #cbd5e0',
+                          borderRadius: '4px',
+                          background: '#ffffff',
+                          color: '#1a202c',
+                          boxSizing: 'border-box'
+                        }}
+                        required
+                      />
+                    </div>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{
               display: 'block',

@@ -1,0 +1,120 @@
+.area-bairro-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.bairro-header {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.configurar-bairro {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.info-bairro {
+  background: linear-gradient(135deg, #FF8C00 0%, #FF7500 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bairro-abas {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #eee;
+}
+
+.aba {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #666;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.aba:hover {
+  color: #FF8C00;
+}
+
+.aba.ativa {
+  color: #FF8C00;
+  border-bottom-color: #FF8C00;
+}
+
+.bairro-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.solicitacoes-grid,
+.alertas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.solicitacao-card,
+.alerta-card {
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.solicitacao-card:hover,
+.alerta-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  border-color: #FF8C00;
+}
+
+@media (max-width: 768px) {
+  .area-bairro-container {
+    padding: 30px 16px;
+  }
+
+  .info-bairro {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .bairro-abas {
+    flex-direction: column;
+    border-bottom: none;
+  }
+
+  .aba {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    padding: 12px 0 12px 12px;
+  }
+
+  .aba.ativa {
+    border-left-color: #FF8C00;
+    border-bottom-color: transparent;
+  }
+
+  .solicitacoes-grid,
+  .alertas-grid {
+    grid-template-columns: 1fr;
+  }
+}

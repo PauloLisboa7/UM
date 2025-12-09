@@ -1,12 +1,12 @@
-import Footer from "../components/Footer";
 import MapView from "../components/MapView";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 export default function Obras() {
   return (
     <div className="app-container">
       <Navbar />
-      <main className="main-content" style={{ marginLeft: 240 }}>
+      <main className="main-content" style={{ marginLeft: 0 }}>
         <h1 style={{
           fontSize: "1.5rem",
           fontWeight: 700,

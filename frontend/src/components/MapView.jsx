@@ -163,7 +163,7 @@ export default function MapView() {
 
         const popupContent = `
           <div style="font-family: Arial, sans-serif; max-width: 250px;">
-            <h3 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px;">🏗️ ${obra.titulo}</h3>
+            <h3 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px;">Obra: ${obra.titulo}</h3>
             <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 14px;">${obra.descricao}</p>
             <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 12px;">Bairro: ${obra.bairro}</p>
             <div style="display: flex; align-items: center; margin-bottom: 4px;">
@@ -190,7 +190,7 @@ export default function MapView() {
 
         const popupContent = `
           <div style="font-family: Arial, sans-serif; max-width: 240px;">
-            <h3 style="margin: 0 0 8px 0; color: #064e3b; font-size: 15px;">🎭 ${e.nome}</h3>
+            <h3 style="margin: 0 0 8px 0; color: #064e3b; font-size: 15px;">Estrutura: ${e.nome}</h3>
             <p style="margin: 0 0 6px 0; color: #6b7280; font-size: 13px;">${e.local}</p>
             <p style="margin: 0; color: #6b7280; font-size: 13px;">${e.descricao}</p>
           </div>
@@ -208,7 +208,7 @@ export default function MapView() {
 
         const popupContent = `
           <div style="font-family: Arial, sans-serif; max-width: 250px;">
-            <h3 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px;">📢 ${demanda.titulo}</h3>
+            <h3 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px;">Demanda: ${demanda.titulo}</h3>
             <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 14px;">${demanda.descricao}</p>
             <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 12px;">Bairro: ${demanda.bairro}</p>
             <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 12px;">${demanda.cidade}, ${demanda.estado}</p>

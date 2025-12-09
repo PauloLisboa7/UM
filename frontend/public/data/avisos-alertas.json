@@ -1,0 +1,46 @@
+{
+  "avisos": [
+    {
+      "id": 1,
+      "tipo": "trânsito",
+      "titulo": "Alteração no Trânsito - Av. Getúlio Vargas",
+      "descricao": "Obras de reparo causarão bloqueio total na Avenida Getúlio Vargas até amanhã às 18h. Utilize vias alternativas.",
+      "data": "2025-12-09T10:00:00Z",
+      "icon": "🚗",
+      "status": "urgente",
+      "localidade": "Centro"
+    },
+    {
+      "id": 2,
+      "tipo": "clima",
+      "titulo": "Alerta de Chuva Forte",
+      "descricao": "Previsão de chuvas fortes e possíveis tempestades entre 14h e 20h. Evite áreas alagáveis.",
+      "data": "2025-12-09T09:30:00Z",
+      "icon": "⛈️",
+      "status": "alerta",
+      "localidade": "São Luís"
+    },
+    {
+      "id": 3,
+      "tipo": "coleta",
+      "titulo": "Cronograma de Coleta - Semana de 09/12",
+      "descricao": "Segunda a Sexta: Coleta comum às 6h da manhã. Sábado: Coleta de recicláveis às 7h.",
+      "data": "2025-12-09T08:00:00Z",
+      "icon": "♻️",
+      "status": "informação",
+      "localidade": "Toda a cidade"
+    },
+    {
+      "id": 4,
+      "tipo": "manutenção",
+      "titulo": "Manutenção da Iluminação Pública",
+      "descricao": "Equipes trabalharão na iluminação da Rua das Flores. Possível falta de energia entre 22h e 23h.",
+      "data": "2025-12-09T07:15:00Z",
+      "icon": "💡",
+      "status": "aviso",
+      "localidade": "Praia Grande"
+    }
+  ],
+  "ultimaAtualizacao": "2025-12-09T10:30:00Z",
+  "proximaAtualizacao": "2025-12-10T10:30:00Z"
+}

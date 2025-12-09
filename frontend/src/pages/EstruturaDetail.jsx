@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import api from "../services/api";
 import estruturasFallback from "../data/estruturas";
 
@@ -37,12 +37,11 @@ export default function EstruturaDetail() {
     return (
       <div className="app-container">
         <Navbar />
-        <main className="main-content" style={{ marginLeft: 240 }}>
+        <main className="main-content" style={{ marginLeft: 0 }}>
           <div style={{ maxWidth: 800, margin: '2rem auto', padding: 12, textAlign: 'center', color: 'var(--muted)' }}>
             Buscando informações da estrutura...
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -51,14 +50,13 @@ export default function EstruturaDetail() {
     return (
       <div className="app-container">
         <Navbar />
-        <main className="main-content" style={{ marginLeft: 240 }}>
+        <main className="main-content" style={{ marginLeft: 0 }}>
           <div style={{ maxWidth: 800, margin: '2rem auto', padding: 12 }}>
             <h2>Estrutura não encontrada</h2>
             <p>Verifique a lista de estruturas.</p>
             <Link to="/estruturas" className="btn-ghost">Voltar</Link>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -66,7 +64,7 @@ export default function EstruturaDetail() {
   return (
     <div className="app-container">
       <Navbar />
-      <main className="main-content" style={{ marginLeft: 240 }}>
+      <main className="main-content" style={{ marginLeft: 0 }}>
         <div style={{ maxWidth: 900, margin: '1.5rem auto', background: 'var(--card-bg)', borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)' }}>
           <div style={{ width: '100%', height: 360, overflow: 'hidden' }}>
             <img src={estrutura.imagem} alt={estrutura.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

@@ -18,3 +18,7 @@ export const requireAdmin = (req, res, next) => {
   if (req.user.role !== 'admin') return res.status(403).json({ message: 'Acesso negado' });
   next();
 };
+
+// Alias para compatibilidade
+export const authMiddleware = authenticateToken;
+export const adminMiddleware = requireAdmin;

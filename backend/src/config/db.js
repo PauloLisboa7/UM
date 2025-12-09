@@ -1,9 +1,32 @@
-import { createClient } from '@supabase/supabase-js';
+import pkg from 'pg';
+const { Client } = pkg;
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
+// Configuração do Neon PostgreSQL
+export const db = new Client({
+  connectionString: process.env.NEON_DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Conectar ao banco de dados
+db.connect()
+  .then(() => console.log('Neon: conexão com PostgreSQL estabelecida'))
+  .catch(err => console.error('Erro ao conectar ao Neon:', err));
+
+// Função para executar queries
+export async function query(text, params) {
+  try {
+    const result = await db.query(text, params);
+    return result;
+  } catch (error) {
+    console.error('Erro na query:', error);
+    throw error;
+  }
+}
+
+// Export para manter compatibilidade com código antigo (se necessário)
+export const supabase = null;

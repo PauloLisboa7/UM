@@ -1,8 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Footer() {
   const { isAdmin } = useAuth();
+  const location = useLocation();
+
+  // Rotas onde o menu lateral deve ficar oculto
+  if (location.pathname.startsWith('/obras')) return null;
   const width = 220;
   const homeLabel = (typeof isAdmin === 'function' && isAdmin()) ? 'Painel de Controle' : 'Home';
   return (

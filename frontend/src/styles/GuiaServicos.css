@@ -1,0 +1,80 @@
+.guia-servicos-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.guia-header {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.servicos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.servico-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.servico-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.servico-header {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+}
+
+.servico-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.servico-info {
+  flex: 1;
+}
+
+.servico-passos {
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.servico-btn {
+  align-self: flex-start;
+  cursor: pointer;
+}
+
+.servico-btn:hover {
+  opacity: 0.8 !important;
+  transform: translateY(-2px) !important;
+}
+
+@media (max-width: 768px) {
+  .servicos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guia-servicos-container {
+    padding: 30px 16px;
+  }
+
+  .servico-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
