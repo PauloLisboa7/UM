@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api.js';
+
+const API_URL = '/api';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -16,12 +17,32 @@ const Register = () => {
       setError('As senhas não coincidem.');
       return;
     }
+    setError(null);
     try {
-      await api.post('/auth/register', { username, email, password });
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const text = await res.text();
+      let body = {};
+      try {
+        body = text ? JSON.parse(text) : {};
+      } catch (parseErr) {
+        body = { __raw: text };
+      }
+
+      if (!res.ok) {
+        const msg = body.message || body.__raw || 'Erro no cadastro';
+        setError(msg);
+        return;
+      }
+
       alert('Cadastro realizado com sucesso! Faça login.');
-      navigate('/');
+      navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Erro no cadastro.');
+      setError(err.message || 'Erro no cadastro.');
     }
   };
 

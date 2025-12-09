@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/MeuHistorico.css';
 
@@ -22,7 +22,7 @@ export default function MeuHistorico() {
     try {
       setCarregando(true);
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:5000/api/solicitacoes/minhas-solicitacoes', {
+      const response = await fetch('/api/solicitacoes/minhas-solicitacoes', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -31,7 +31,7 @@ export default function MeuHistorico() {
       if (!response.ok) throw new Error('Erro ao carregar solicitações');
 
       const data = await response.json();
-      setSolicitacoes(data || []);
+      setSolicitacoes(data.solicitacoes || []);
       setErro(null);
     } catch (err) {
       console.error('Erro:', err);

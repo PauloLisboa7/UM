@@ -1,6 +1,6 @@
+import { getSupabase } from '../config/supabaseClient.js';
 import { solicitacaoModel } from '../models/solicitacaoModel.js';
-import { enviarEmailConfirmacaoSolicitacao, enviarEmailAtualizacaoStatus } from '../services/emailService.js';
-import { query } from '../config/db.js';
+import { enviarEmailAtualizacaoStatus, enviarEmailConfirmacaoSolicitacao } from '../services/emailService.js';
 
 export const solicitacaoController = {
   // Criar nova solicitação
@@ -39,16 +39,19 @@ export const solicitacaoController = {
         anonima,
       });
 
-      // Buscar email do usuário
-      const userResult = await query(
-        'SELECT email FROM users WHERE id = $1',
-        [user_id]
-      );
-
-      // Enviar email de confirmação (não bloqueia a resposta)
-      if (userResult.rows.length > 0 && userResult.rows[0].email) {
-        enviarEmailConfirmacaoSolicitacao(userResult.rows[0].email, solicitacao)
-          .catch(err => console.error('Erro ao enviar email:', err));
+      // Buscar email do usuário via Supabase
+      try {
+        const { data: userData, error: userErr } = await getSupabase()
+          .from('users')
+          .select('email')
+          .eq('id', user_id)
+          .single();
+        if (!userErr && userData?.email) {
+          enviarEmailConfirmacaoSolicitacao(userData.email, solicitacao)
+            .catch(err => console.error('Erro ao enviar email:', err));
+        }
+      } catch (e) {
+        console.error('Erro ao buscar email do usuário:', e);
       }
 
       res.status(201).json({
@@ -175,16 +178,19 @@ export const solicitacaoController = {
         justificativa
       );
 
-      // Buscar email do usuário que fez a solicitação
-      const userResult = await query(
-        'SELECT email FROM users WHERE id = $1',
-        [solicitacao.user_id]
-      );
-
-      // Enviar email de atualização de status (não bloqueia a resposta)
-      if (userResult.rows.length > 0 && userResult.rows[0].email) {
-        enviarEmailAtualizacaoStatus(userResult.rows[0].email, solicitacao, novoStatus, justificativa)
-          .catch(err => console.error('Erro ao enviar email de atualização:', err));
+      // Buscar email do usuário que fez a solicitação via Supabase
+      try {
+        const { data: userData, error: userErr } = await getSupabase()
+          .from('users')
+          .select('email')
+          .eq('id', solicitacao.user_id)
+          .single();
+        if (!userErr && userData?.email) {
+          enviarEmailAtualizacaoStatus(userData.email, solicitacao, novoStatus, justificativa)
+            .catch(err => console.error('Erro ao enviar email de atualização:', err));
+        }
+      } catch (e) {
+        console.error('Erro ao buscar email do usuário:', e);
       }
 
       res.json({
@@ -260,16 +266,19 @@ export const solicitacaoController = {
         justificativa || null
       );
 
-      // Buscar email do usuário
-      const userResult = await query(
-        'SELECT email FROM users WHERE id = $1',
-        [solicitacao.user_id]
-      );
-
-      // Enviar email de atualização de status
-      if (userResult.rows.length > 0 && userResult.rows[0].email) {
-        enviarEmailAtualizacaoStatus(userResult.rows[0].email, solicitacao, status, justificativa)
-          .catch(err => console.error('Erro ao enviar email de atualização:', err));
+      // Buscar email do usuário via Supabase
+      try {
+        const { data: userData, error: userErr } = await getSupabase()
+          .from('users')
+          .select('email')
+          .eq('id', solicitacao.user_id)
+          .single();
+        if (!userErr && userData?.email) {
+          enviarEmailAtualizacaoStatus(userData.email, solicitacao, status, justificativa)
+            .catch(err => console.error('Erro ao enviar email de atualização:', err));
+        }
+      } catch (e) {
+        console.error('Erro ao buscar email do usuário:', e);
       }
 
       res.json({
@@ -277,9 +286,11 @@ export const solicitacaoController = {
         solicitacao,
       });
     } catch (error) {
-      console.error('Erro ao atualizar status:', error);
+      console.error('[ADMIN] Erro ao atualizar status:', error.message);
+      console.error('[ADMIN] Stack:', error.stack);
       res.status(500).json({
         error: 'Erro ao atualizar status',
+        details: error.message
       });
     }
   },

@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useState } from 'react';
+import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 
 // Lista completa e limpa de bairros de São Luís
 const BAIRROS_SAO_LUIS = [
@@ -530,7 +530,7 @@ export default function SolicitarReclamacao() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/solicitacoes/', {
+      const response = await fetch('/api/solicitacoes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

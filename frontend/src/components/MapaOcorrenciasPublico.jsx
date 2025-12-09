@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useEffect, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 
 export default function MapaOcorrenciasPublico() {
   const [solicitacoes, setSolicitacoes] = useState([]);
@@ -33,7 +33,7 @@ export default function MapaOcorrenciasPublico() {
   useEffect(() => {
     const buscarSolicitacoes = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/solicitacoes/publicas/todas');
+        const response = await fetch('/api/solicitacoes/publicas/todas');
         const data = await response.json();
         setSolicitacoes(data.solicitacoes || []);
       } catch (error) {

@@ -37,7 +37,7 @@ export default function PainelAcompanhamento() {
     setHistorico([]);
 
     try {
-      const response = await fetch(`http://localhost:3001/api/solicitacoes/rastreamento/${numeroRastreamento}`);
+      const response = await fetch(`/api/solicitacoes/rastreamento/${numeroRastreamento}`);
       const data = await response.json();
 
       if (!response.ok) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/AreaMeuBairro.css';
 
@@ -40,7 +40,7 @@ export default function AreaMeuBairro() {
       const token = localStorage.getItem('authToken');
 
       // Carregar dados do usuário
-      const resUsuario = await fetch('http://localhost:5000/api/usuarios/meu-bairro', {
+      const resUsuario = await fetch('/api/usuarios/meu-bairro', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -54,7 +54,7 @@ export default function AreaMeuBairro() {
 
       // Carregar solicitações do bairro
       if (bairro) {
-        const resSolicitacoes = await fetch(`http://localhost:5000/api/solicitacoes/por-bairro/${bairro}`, {
+        const resSolicitacoes = await fetch(`/api/solicitacoes/por-bairro/${bairro}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -93,7 +93,7 @@ export default function AreaMeuBairro() {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:5000/api/usuarios/meu-bairro', {
+      const response = await fetch('/api/usuarios/meu-bairro', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

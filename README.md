@@ -1,152 +1,104 @@
-# CleanWork
+# 🚀 Plataforma de Transparência - Setup Completo
 
-Aplicativo web para transparência e participação comunitária em São Luís — permite visualizar obras públicas no mapa, submeter demandas comunitárias e acompanhar informações básicas das obras.
+## 📋 Status Atual
+✅ Projeto limpo de dados obsoletos  
+✅ Backend conectado ao Supabase (`txzaqyaluvcbausnqpru`)  
+✅ Schema SQL pronto para ser executado  
 
-## Visão geral
+## 🔧 Próximos Passos
 
-O projeto é dividido em duas partes:
+### 1️⃣ Executar SQL no Supabase (Limpeza e Criação de Tabelas)
 
-- `backend/` — API em Node.js (Express) que serve endpoints para obras e demandas.
-- `frontend/` — Aplicação React com Vite que exibe mapa, lista de demandas e formulário para criar novas demandas.
+1. Acesse: https://txzaqyaluvcbausnqpru.supabase.co
+2. Vá para **SQL Editor** (lado esquerdo)
+3. Crie uma nova query vazia
+4. Copie e cola o conteúdo de **`CLEANUP_AND_SETUP_DB.sql`** do repositório
+5. Execute (clique em "Run" ou Ctrl+Enter)
+6. Aguarde a conclusão (deve levar 10-30 segundos)
 
-Funcionalidades principais:
+**Resultado esperado:** Todas as tabelas criadas, índices configurados, RLS ativado.
 
-- Listagem de obras públicas no mapa (Leaflet).
-- Criação de novas demandas comunitárias (opcionalmente com localização geográfica).
-- Alternância entre tema claro e escuro (modo noturno).
-- Possibilidade de remover a localização associada a uma demanda.
+### 2️⃣ Iniciar Backend
 
-## Pré-requisitos
-
-- Node.js (recomendado 18+)
-- NPM ou Yarn
-- Banco de dados PostgreSQL (opcional: o backend está configurado para usar Postgres via variáveis de ambiente)
-
-## Configuração do backend
-
-1. Crie um arquivo `.env` dentro de `backend/` com as variáveis abaixo (a **service role key** do Supabase só pode ser usada no servidor; nunca exponha esse valor no frontend):
-
-```
-SUPABASE_URL=https://<id-do-seu-projeto>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
-JWT_SECRET=<chave forte à sua escolha>
-PORT=5000
-```
-
-> ⚠️ **Importante:** não use a chave `anon` no backend, porque as policies das tabelas (`users`, `obras`, `demandas`, `estruturas_culturais`) permitem acesso apenas para a role `service_role`. Sem a service role key, o login retornará “Usuário não encontrado”.
-
-2. Instale dependências e inicie o servidor (PowerShell):
-
-```powershell
+```bash
 cd backend
-npm install
-npm run dev    # usa nodemon; ou npm start
-```
-
-3. Se ainda não tiver rodado as migrações, execute o script SQL (`backend/create-tables.sql`) no Supabase SQL Editor ou utilize o script `node backend/create-tables.js` após configurar o `.env`. Depois rode `node backend/scripts/upsert-admin.js` para garantir o admin padrão `cleanwork7 / cleanwork777`.
-
-# 🌆 CleanWork
-
-Aplicativo web para transparência e participação comunitária em São Luís — visualize obras públicas no mapa, submeta demandas e acompanhe informações relevantes.
-
----
-
-## 🔎 Visão geral
-
-O projeto tem duas partes principais:
-
-- `backend/` — API em Node.js (Express) que fornece endpoints para obras e demandas.
-- `frontend/` — Aplicação React (Vite) com mapa (Leaflet), formulário de novas demandas e listagem.
-
-Funcionalidades principais:
-
-- 🗺️ Listagem de obras públicas no mapa (Leaflet).
-- 📝 Criação de demandas comunitárias (opcional com localização geográfica).
-- 🌙 Alternância entre tema claro e escuro (persistido em localStorage).
-- ❌ Remoção da localização associada a uma demanda.
-
----
-
-## ⚙️ Pré-requisitos
-
-- Node.js (recomendado 18+)
-- NPM ou Yarn
-- PostgreSQL (o backend usa Postgres via variáveis de ambiente)
-
----
-
-## 🛠️ Configuração do backend
-
-1. Garanta que o `.env` esteja preenchido conforme descrito na seção superior.
-
-2. Instale dependências e inicie o servidor (PowerShell):
-
-```powershell
-cd backend
-npm install
-npm run dev    # usa nodemon; ou npm start
-```
-
-3. Para popular dados iniciais, utilize:
-
-```powershell
-node backend/create-tables.js        # cria as tabelas via Supabase RPC
-node backend/scripts/upsert-admin.js # garante o usuário admin cleanwork7
-node backend/populate-estruturas.js  # opcional
-node backend/populate-obras.js       # opcional
-```
-
-> ❗ Caso não queira usar o RPC `exec_sql`, copie o conteúdo de `create-tables.sql` para o SQL Editor do Supabase e execute por lá.
-
----
-
-## 🖥️ Configuração do frontend
-
-1. Instale dependências e inicie a aplicação (PowerShell):
-
-```powershell
-cd frontend
-npm install
+npm install  # Se não tiver feito
 npm run dev
 ```
 
-O frontend (Vite) ficará disponível em `http://localhost:5173` por padrão.
+Esperado:
+```
+[SUPABASE] Inicializando cliente com URL: https://txzaqyaluvcbausnqpru...
+Supabase: conexão verificada (consulta de teste OK).
+Servidor rodando na porta 5000
+```
+
+### 3️⃣ Iniciar Frontend
+
+```bash
+cd frontend
+npm install  # Se não tiver feito
+npm run dev
+```
+
+O frontend estará em `http://localhost:5173` (ou a porta mostrada).
+
+### 4️⃣ Testar o Sistema
+
+**Registro:**
+1. Vá para `/register`
+2. Crie um usuário novo (ex: `testuser`, `test@example.com`, `password123`)
+3. Será criado automaticamente na tabela `users` do Supabase
+
+**Login:**
+1. Vá para `/login`
+2. Use as credenciais criadas
+3. Será emitido um JWT válido por 1 hora
+
+**Admin Panel (Opcional):**
+1. Crie um usuário admin manualmente no Supabase:
+   - Tabela: `users`
+   - Valores: `username: admin`, `password: <hashed_bcrypt>`, `role: admin`, `email: seu-email@example.com`
+
+## 📊 Banco de Dados
+
+**Tipo:** PostgreSQL (Supabase)  
+**URL:** https://txzaqyaluvcbausnqpru.supabase.co  
+**Conexão PG:** `postgresql://postgres:[PASSWORD]@db.txzaqyaluvcbausnqpru.supabase.co:5432/postgres`
+
+**Tabelas:**
+- `users` - Usuários com auth
+- `solicitacoes` - Solicitações do público
+- `status_historico` - Histórico de status das solicitações
+- `obras` - Obras da cidade
+- `demandas` - Demandas do público
+- `estruturas_culturais` - Patrimônio cultural
+- `avisos` - Avisos/alertas do admin
+- `alertas_bairro` - Alertas por bairro
+- `configuracoes_notificacao` - Preferências de notificação dos usuários
+
+## 🔐 Segurança
+
+- **RLS ativado:** Apenas service_role (backend) pode acessar
+- **JWT:** Emitido pelo backend, válido por 1 hora
+- **Bcrypt:** Senhas hasheadas com salt 10
+
+## 📝 Arquivos Importantes
+
+- `backend/src/server.js` - Entry point do backend
+- `backend/src/config/supabaseClient.js` - Cliente Supabase
+- `backend/.env` - Variáveis de ambiente
+- `frontend/src/services/api.js` - Cliente HTTP frontend
+- `CLEANUP_AND_SETUP_DB.sql` - Script SQL para limpar e criar schema
+
+## ⚠️ Dúvidas?
+
+1. Backend não conecta → Verifique `.env` tem as variáveis corretas
+2. Tabelas não existem → Execute `CLEANUP_AND_SETUP_DB.sql` no Supabase
+3. Registro falha → Verifique se backend está rodando (`npm run dev`)
+4. Login falha → Confirme que o usuário foi criado na tabela `users`
 
 ---
 
-## 🚀 Endpoints principais
-
-- `GET /api/demandas` — lista todas as demandas
-- `POST /api/demandas` — cria nova demanda (aceita `titulo`, `descricao`, `bairro`, `latitude`, `longitude`, `usuario_id`)
-- `PUT /api/demandas/:id` — atualiza status da demanda
-- `PATCH /api/demandas/:id/location` — atualiza ou remove localização (envie `{ "latitude": null, "longitude": null }` para remover)
-- `DELETE /api/demandas/:id` — exclui demanda
-
----
-
-## 🗺️ Integração mapa / demandas
-
-- Clique no mapa para selecionar coordenadas ao criar uma demanda — as coordenadas são enviadas ao backend junto ao POST.
-- Marcadores no mapa representam obras (ou demandas com localização). O popup do marcador tem um botão para remover a localização (faz um `PATCH /api/demandas/:id/location`).
-
----
-
-## 📝 Notas e recomendações
-
-- O tema claro/escuro é gerenciado por `ThemeContext` e salvo em `localStorage`.
-- Para automatizar a criação das tabelas, adicione migrações com ferramentas como Knex, Sequelize CLI ou TypeORM.
-
----
-
-## ✅ Próximos passos sugeridos
-
-- Implementar autenticação para associar `usuario_id` às demandas.
-- Adicionar paginação e filtros à listagem de demandas.
-- Escrever testes automatizados para os endpoints e componentes.
-
----
-
-Se quiser, eu posso:
-
-- ▶️ Iniciar o backend aqui para testar os endpoints (preciso de sua confirmação para rodar o servidor).
-- 🧭 Criar scripts de migração para facilitar a criação das tabelas.
+**Última atualização:** 9 de dezembro de 2025  
+**Status:** ✅ Pronto para desenvolvimento

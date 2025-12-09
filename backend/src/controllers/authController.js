@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { getUserByUsername, createUser } from '../models/userModel.js';
+import { createUser, getUserByUsername } from '../models/userModel.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -24,7 +24,8 @@ export const login = async (req, res) => {
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ token, role: user.role });
   } catch (error) {
-    res.status(500).json({ message: 'Erro no login', error });
+    console.error('[AUTH] Erro no login:', error);
+    res.status(500).json({ message: 'Erro no login', error: error?.message || String(error) });
   }
 };
 
@@ -51,6 +52,7 @@ export const register = async (req, res) => {
 
     res.status(201).json({ message: 'Usuário criado', user: newUser });
   } catch (error) {
-    res.status(500).json({ message: 'Erro no registro', error });
+    console.error('[AUTH] Erro no registro:', error);
+    res.status(500).json({ message: 'Erro no registro', error: error?.message || String(error) });
   }
 };

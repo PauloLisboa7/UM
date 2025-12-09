@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/ConfiguracoesNotificacao.css';
 
@@ -25,7 +25,7 @@ export default function ConfiguracoesNotificacao() {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:5000/api/usuarios/configuracoes-notificacao', {
+      const response = await fetch('/api/usuarios/configuracoes-notificacao', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -63,7 +63,7 @@ export default function ConfiguracoesNotificacao() {
     try {
       setSalvando(true);
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:5000/api/usuarios/configuracoes-notificacao', {
+      const response = await fetch('/api/usuarios/configuracoes-notificacao', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

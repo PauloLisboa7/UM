@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { getSupabase } from '../config/supabaseClient.js';
 
 export const solicitacaoModel = {
   // Criar uma nova solicitação
@@ -19,118 +19,141 @@ export const solicitacaoModel = {
     // Gerar número de rastreamento único
     const numeroRastreamento = `SOL-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-    try {
-      const result = await query(
-        `INSERT INTO solicitacoes (user_id, descricao, cep, bairro, rua, numero, latitude, longitude, fotos_urls, anonima, numero_rastreamento, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
-        [user_id, descricao, cep, bairro, rua, numero, latitude, longitude, fotos_urls || [], anonima || false, numeroRastreamento, 'Enviada/Em Análise']
-      );
-      return result.rows[0];
-    } catch (error) {
+    const novaSolicitacao = {
+      user_id,
+      descricao,
+      cep,
+      bairro,
+      rua,
+      numero,
+      latitude,
+      longitude,
+      fotos_urls: fotos_urls || [],
+      anonima: anonima || false,
+      numero_rastreamento: numeroRastreamento,
+      status: 'Enviada/Em Análise',
+      created_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await getSupabase()
+      .from('solicitacoes')
+      .insert([novaSolicitacao])
+      .select();
+    if (error) {
       console.error('Erro ao criar solicitação:', error);
       throw error;
     }
+    return data[0];
   },
 
   // Buscar solicitação por ID
   async buscarPorId(id) {
-    try {
-      const result = await query(
-        'SELECT * FROM solicitacoes WHERE id = $1',
-        [id]
-      );
-      return result.rows[0] || null;
-    } catch (error) {
+    const { data, error } = await getSupabase()
+      .from('solicitacoes')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) {
       console.error('Erro ao buscar solicitação:', error);
       throw error;
     }
+    return data || null;
   },
 
   // Buscar solicitação por número de rastreamento
   async buscarPorRastreamento(numeroRastreamento) {
-    try {
-      const result = await query(
-        'SELECT * FROM solicitacoes WHERE numero_rastreamento = $1',
-        [numeroRastreamento]
-      );
-      return result.rows[0] || null;
-    } catch (error) {
+    const { data, error } = await getSupabase()
+      .from('solicitacoes')
+      .select('*')
+      .eq('numero_rastreamento', numeroRastreamento)
+      .single();
+    if (error) {
       console.error('Erro ao buscar solicitação:', error);
       throw error;
     }
+    return data || null;
   },
 
   // Listar solicitações do usuário
   async listarPorUsuario(userId) {
-    try {
-      const result = await query(
-        'SELECT * FROM solicitacoes WHERE user_id = $1 ORDER BY created_at DESC',
-        [userId]
-      );
-      return result.rows;
-    } catch (error) {
+    const { data, error } = await getSupabase()
+      .from('solicitacoes')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) {
       console.error('Erro ao listar solicitações:', error);
       throw error;
     }
+    return data;
   },
 
-  // Listar todas as solicitações (para mapa público)
+  // Listar todas as solicitações (para mapa público ou admin)
   async listarTodas(apenasPublicas = true) {
-    try {
-      let sql = 'SELECT id, descricao, latitude, longitude, status, numero_rastreamento, created_at, bairro, rua FROM solicitacoes';
-      
-      if (apenasPublicas) {
-        sql += ' WHERE anonima = false';
-      }
-      
-      sql += ' ORDER BY created_at DESC';
-      
-      const result = await query(sql);
-      return result.rows;
-    } catch (error) {
+    let queryBuilder = getSupabase()
+      .from('solicitacoes')
+      .select('*');
+    if (apenasPublicas) {
+      queryBuilder = queryBuilder.eq('anonima', false);
+    }
+    queryBuilder = queryBuilder.order('created_at', { ascending: false });
+    const { data, error } = await queryBuilder;
+    if (error) {
       console.error('Erro ao listar solicitações:', error);
       throw error;
     }
+    return data;
   },
 
   // Atualizar status
   async atualizarStatus(id, novoStatus, orgaoCompetente = null, justificativa = null) {
-    try {
-      const solicitacao = await this.buscarPorId(id);
-      if (!solicitacao) throw new Error('Solicitação não encontrada');
-      
-      // Adicionar ao histórico
-      await query(
-        `INSERT INTO status_historico (solicitacao_id, status_anterior, status_novo, orgao_competente, justificativa)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [id, solicitacao.status, novoStatus, orgaoCompetente, justificativa]
-      );
+    const solicitacao = await this.buscarPorId(id);
+    if (!solicitacao) throw new Error('Solicitação não encontrada');
 
-      // Atualizar solicitação
-      const result = await query(
-        `UPDATE solicitacoes SET status = $1, orgao_competente = $2, justificativa_rejeicao = $3, updated_at = NOW()
-         WHERE id = $4 RETURNING *`,
-        [novoStatus, orgaoCompetente, justificativa, id]
-      );
+    // Adicionar ao histórico
+    const historico = {
+      solicitacao_id: id,
+      status_anterior: solicitacao.status,
+      status_novo: novoStatus,
+      orgao_competente: orgaoCompetente,
+      justificativa,
+      created_at: new Date().toISOString(),
+    };
+    const { error: histError } = await getSupabase()
+      .from('status_historico')
+      .insert([historico]);
+    if (histError) {
+      console.error('Erro ao inserir histórico:', histError);
+      throw histError;
+    }
 
-      return result.rows[0];
-    } catch (error) {
-      console.error('Erro ao atualizar status:', error);
+    // Atualizar solicitação
+    const { data, error } = await getSupabase()
+      .from('solicitacoes')
+      .update({
+        status: novoStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select();
+    if (error) {
+      console.error('Erro ao atualizar solicitação:', error);
       throw error;
     }
+    return data[0];
   },
 
   // Buscar histórico de status
   async buscarHistorico(solicitacaoId) {
-    try {
-      const result = await query(
-        'SELECT * FROM status_historico WHERE solicitacao_id = $1 ORDER BY created_at DESC',
-        [solicitacaoId]
-      );
-      return result.rows;
-    } catch (error) {
+    const { data, error } = await getSupabase()
+      .from('status_historico')
+      .select('*')
+      .eq('solicitacao_id', solicitacaoId)
+      .order('created_at', { ascending: false });
+    if (error) {
       console.error('Erro ao buscar histórico:', error);
       throw error;
     }
+    return data;
   },
 };

@@ -1,15 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis, YAxis,
+} from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
-import {
-  PieChart, Pie, Cell,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line,
-} from 'recharts';
+import AdminBairros from './AdminBairros';
+import AdminConfiguracoes from './AdminConfiguracoes';
 import AdminGerenciarAvisos from './AdminGerenciarAvisos';
 import AdminHistoricoUsuarios from './AdminHistoricoUsuarios';
-import AdminConfiguracoes from './AdminConfiguracoes';
-import AdminBairros from './AdminBairros';
 
 const STATUS_OPTIONS = [
   'Enviada/Em Análise',
@@ -31,6 +40,7 @@ export default function AdminPanel() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroBairro, setFiltroBairro] = useState('');
   const [activeTab, setActiveTab] = useState('graficos');
 
   // Verificar se é admin
@@ -51,7 +61,8 @@ export default function AdminPanel() {
   const carregarSolicitacoes = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/solicitacoes/admin/listar');
+      // Usar a rota de admin com autenticação
+      const response = await api.get('/solicitacoes/admin/listar');
       setSolicitacoes(response.data.solicitacoes || []);
       setError('');
     } catch (err) {
@@ -88,6 +99,10 @@ export default function AdminPanel() {
   const solicitacoesFiltradas = filtroStatus
     ? solicitacoes.filter(s => s.status === filtroStatus)
     : solicitacoes;
+
+  const solicitacoesFiltradasBairro = filtroBairro
+    ? solicitacoesFiltradas.filter(s => s.bairro === filtroBairro)
+    : solicitacoesFiltradas;
 
   // Dados para gráfico de distribuição de status
   const statusData = STATUS_OPTIONS.map(status => ({
@@ -250,63 +265,89 @@ export default function AdminPanel() {
       {/* CONTEÚDO DAS ABAS */}
       {activeTab === 'lista' && (
         // ABA LISTA
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
-          {/* Coluna Esquerda: Lista de Solicitações */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
+          {/* Coluna Esquerda: Tabela de Solicitações */}
           <div>
             <h2 style={{ fontSize: '18px', marginBottom: '16px' }}>Solicitações</h2>
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                Filtrar por Status:
-              </label>
-              <select
-                value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  border: '1px solid #ddd',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                }}
-              >
-                <option value="">Todos os status</option>
-                {STATUS_OPTIONS.map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                  Filtrar por Status:
+                </label>
+                <select
+                  value={filtroStatus}
+                  onChange={(e) => setFiltroStatus(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                  }}
+                >
+                  <option value="">Todos os status</option>
+                  {STATUS_OPTIONS.map(status => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                  Filtrar por Bairro:
+                </label>
+                <select
+                  value={filtroBairro || ''}
+                  onChange={(e) => setFiltroBairro(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                  }}
+                >
+                  <option value="">Todos os bairros</option>
+                  {[...new Set(solicitacoes.map(s => s.bairro).filter(Boolean))].sort().map(bairro => (
+                    <option key={bairro} value={bairro}>{bairro}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {loading ? (
               <p style={{ color: '#999' }}>Carregando...</p>
-            ) : solicitacoesFiltradas.length === 0 ? (
+            ) : solicitacoesFiltradasBairro.length === 0 ? (
               <p style={{ color: '#999' }}>Nenhuma solicitação encontrada.</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '600px', overflowY: 'auto' }}>
-                {solicitacoesFiltradas.map(solicitacao => (
-                  <div
-                    key={solicitacao.id}
-                    onClick={() => setSelectedSolicitacao(solicitacao)}
-                    style={{
-                      padding: '12px',
-                      backgroundColor: selectedSolicitacao?.id === solicitacao.id ? '#FFF3E0' : '#f9f9f9',
-                      border: selectedSolicitacao?.id === solicitacao.id ? '2px solid #FF8C00' : '1px solid #ddd',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    <p style={{ margin: '0 0 4px 0', fontWeight: '600', color: '#333' }}>
-                      #{solicitacao.numero_rastreamento}
-                    </p>
-                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#666' }}>
-                      {solicitacao.descricao?.substring(0, 50)}...
-                    </p>
-                    <p style={{ margin: '0', fontSize: '12px', color: '#999' }}>
-                      Status: <span style={{ color: '#FF8C00', fontWeight: '600' }}>{solicitacao.status}</span>
-                    </p>
-                  </div>
-                ))}
+              <div style={{ maxHeight: '600px', overflowY: 'auto', border: '1px solid #eee', borderRadius: '8px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f5f5f5' }}>
+                      <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>#</th>
+                      <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Descrição</th>
+                      <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Status</th>
+                      <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Bairro</th>
+                      <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Data</th>
+                      <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Usuário</th>
+                      <th style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {solicitacoesFiltradasBairro.map(solicitacao => (
+                      <tr key={solicitacao.id} style={{ backgroundColor: selectedSolicitacao?.id === solicitacao.id ? '#FFF3E0' : '#fff', cursor: 'pointer' }} onClick={() => setSelectedSolicitacao(solicitacao)}>
+                        <td style={{ padding: '10px', borderBottom: '1px solid #eee', fontWeight: 'bold', color: '#333' }}>#{solicitacao.numero_rastreamento}</td>
+                        <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{solicitacao.descricao?.substring(0, 50)}...</td>
+                        <td style={{ padding: '10px', borderBottom: '1px solid #eee', color: '#FF8C00', fontWeight: '600' }}>{solicitacao.status}</td>
+                        <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{solicitacao.bairro}</td>
+                        <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{new Date(solicitacao.created_at).toLocaleDateString('pt-BR')}</td>
+                        <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{solicitacao.nome_usuario || solicitacao.usuario_id}</td>
+                        <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                          <button style={{ padding: '6px 12px', backgroundColor: '#FF8C00', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}>Ver</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
@@ -324,7 +365,6 @@ export default function AdminPanel() {
                     {selectedSolicitacao.numero_rastreamento}
                   </p>
                 </div>
-
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500', fontSize: '14px' }}>
                     Descrição:
@@ -333,7 +373,6 @@ export default function AdminPanel() {
                     {selectedSolicitacao.descricao}
                   </p>
                 </div>
-
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500', fontSize: '14px' }}>
                     Localização:
@@ -342,7 +381,6 @@ export default function AdminPanel() {
                     {selectedSolicitacao.rua}, {selectedSolicitacao.numero} - {selectedSolicitacao.bairro} - CEP {selectedSolicitacao.cep}
                   </p>
                 </div>
-
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500', fontSize: '14px' }}>
                     Status Atual:
@@ -351,7 +389,6 @@ export default function AdminPanel() {
                     {selectedSolicitacao.status}
                   </p>
                 </div>
-
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
                     Novo Status:
@@ -373,7 +410,6 @@ export default function AdminPanel() {
                     ))}
                   </select>
                 </div>
-
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
                     Justificativa (opcional):
@@ -393,7 +429,6 @@ export default function AdminPanel() {
                     }}
                   />
                 </div>
-
                 <button
                   onClick={atualizarStatus}
                   style={{

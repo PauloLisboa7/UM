@@ -1,13 +1,17 @@
 // ...existing code...
-import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import express from "express";
+import { initializeSupabase } from "./config/supabaseClient.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import solicitacaoRoutes from "./routes/solicitacaoRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js";
-import { db } from "./config/db.js";
 
+// Load environment variables FIRST before using them
 dotenv.config();
+
+// Initialize Supabase AFTER dotenv.config() loads env vars
+const supabase = initializeSupabase();
 
 const app = express();
 app.use(cors());
@@ -22,14 +26,18 @@ app.get("/", (req, res) => {
   res.send("API da Plataforma de Transparência está rodando 🚀");
 });
 
-// Função para testar conexão com o Neon (tenta ler 1 registro da tabela 'users')
+// Função para testar conexão com o Supabase (tenta ler 1 registro da tabela 'users')
 async function testarConexaoDB() {
   try {
-    const result = await db.query('SELECT id FROM users LIMIT 1');
-    console.log('Neon: conexão verificada (consulta de teste OK).');
+    const { data, error } = await supabase
+      .from('users')
+      .select('id')
+      .limit(1);
+    if (error) throw error;
+    console.log('Supabase: conexão verificada (consulta de teste OK).');
     return true;
   } catch (err) {
-    console.error('Erro ao testar Neon:', err.message);
+    console.error('Erro ao testar Supabase:', err.message || err);
     return false;
   }
 }
