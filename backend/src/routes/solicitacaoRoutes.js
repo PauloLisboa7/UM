@@ -1,7 +1,7 @@
 import express from 'express';
+import { getSupabase } from '../config/supabaseClient.js';
 import { solicitacaoController } from '../controllers/solicitacaoController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
-import { getSupabase } from '../config/supabaseClient.js';
 import { solicitacaoModel } from '../models/solicitacaoModel.js';
 
 const router = express.Router();
@@ -89,6 +89,31 @@ router.patch('/admin/:id', authMiddleware, isAdmin, solicitacaoController.atuali
 
 // ADMIN: Deletar solicitação
 router.delete('/admin/:id', authMiddleware, isAdmin, solicitacaoController.deletar);
+
+// Usuário: listar alertas do seu bairro (inclui alertas globais "Toda a cidade")
+router.get('/alertas-bairro/:bairro', authMiddleware, async (req, res) => {
+  const { bairro } = req.params;
+
+  if (!bairro) {
+    return res.status(400).json({ error: 'Bairro é obrigatório' });
+  }
+
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('alertas_bairro')
+      .select('*')
+      .or(`bairro.eq.${bairro},bairro.eq.Toda a cidade`)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({ alertas: data || [] });
+  } catch (err) {
+    console.error('Erro ao buscar alertas por bairro:', err);
+    res.status(500).json({ error: 'Erro ao buscar alertas' });
+  }
+});
 
 // Listar solicitações do usuário (autenticado)
 router.get('/minhas-solicitacoes', authMiddleware, solicitacaoController.listarDoUsuario);

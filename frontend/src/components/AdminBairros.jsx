@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../services/api';
 
 const BAIRROS_SL = [
@@ -10,8 +10,29 @@ const BAIRROS_SL = [
   'Liberdade',
   'Bacanga',
   'Vila Passos',
+  'Vila Palmeira',
   'Cohafama',
   'Bequimão',
+  'Anjo da Guarda',
+  'Tirirical',
+  'Coroado',
+  'Anil',
+  "Olho d'Água",
+  'Vila Embratel',
+  'Cidade Operária',
+  'Cohatrac',
+  'Ipase',
+  'Vinhais',
+  'Maiobão',
+  'Aurora',
+  'Parque Shalon',
+  'Cohama',
+  'Forquilha',
+  'Cohajap',
+  'Angelim',
+  'Planalto Vinhais',
+  'Parque Pindorama',
+  'Toda a cidade',
 ];
 
 const TIPOS_ALERTA = ['trânsito', 'energia', 'coleta', 'manutenção', 'saúde', 'segurança'];
@@ -21,7 +42,7 @@ export default function AdminBairros() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [filtroBairro, setFiltroBairro] = useState('Centro');
+  const [filtroBairro, setFiltroBairro] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   
@@ -145,6 +166,11 @@ export default function AdminBairros() {
     return colors[tipo] || '#999';
   };
 
+  const bairrosLista = Array.from(new Set([
+    ...BAIRROS_SL,
+    ...alertasBairro.map(a => a.bairro).filter(Boolean),
+  ])).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
   const stats = {
     total: alertasBairro.length,
     porBairro: {},
@@ -213,7 +239,7 @@ export default function AdminBairros() {
           Total: {stats.total} alertas
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px' }}>
-          {BAIRROS_SL.map(bairro => (
+          {bairrosLista.map(bairro => (
             <div key={bairro} style={{ fontSize: '13px', color: '#666' }}>
               <strong>{bairro}:</strong> {stats.porBairro[bairro] || 0}
             </div>
@@ -252,7 +278,7 @@ export default function AdminBairros() {
                     fontSize: '14px',
                   }}
                 >
-                  {BAIRROS_SL.map(bairro => (
+                  {bairrosLista.map(bairro => (
                     <option key={bairro} value={bairro}>{bairro}</option>
                   ))}
                 </select>
@@ -413,7 +439,7 @@ export default function AdminBairros() {
           }}
         >
           <option value="">Todos os Bairros</option>
-          {BAIRROS_SL.map(bairro => (
+          {bairrosLista.map(bairro => (
             <option key={bairro} value={bairro}>{bairro}</option>
           ))}
         </select>

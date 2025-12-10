@@ -8,10 +8,48 @@ export default function Navbar() {
   // A área principal da página já usa `marginLeft: 240`, então o menu lateral ocupa esse espaço.
   return (
     <>
-      <nav style={{ padding: "0.6rem 1rem", color: "var(--text)", borderBottom: '1px solid var(--border)', background: 'var(--bg)' }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ fontWeight: 700 }}>
-            <Link to="/home" style={{ textDecoration: 'none', color: 'var(--text)' }}>Início</Link>
+      <nav style={{ 
+        padding: "0.6rem 1rem", 
+        color: "var(--text)", 
+        borderBottom: '1px solid var(--border)', 
+        background: '#ffffff',
+        display: 'flex',
+        alignItems: 'center',
+        height: '56px',
+        position: 'relative',
+      }}>
+        <div style={{ 
+          maxWidth: 1400, 
+          margin: "0 auto", 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "space-between",
+          width: '100%',
+        }}>
+          {/* Logo + CleanWork */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+          }}>
+            <img
+              src="/logo%20cln.png"
+              alt="CleanWork"
+              style={{
+                height: '40px',
+                width: 'auto',
+              }}
+            />
+            <div style={{
+              color: '#FF8C00',
+              fontWeight: 700,
+              fontSize: '18px',
+              lineHeight: 1,
+              paddingTop: '2px',
+              margin: 0,
+            }}>
+              CleanWork
+            </div>
           </div>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             {/* espaço para controles (login/tema) se necessário */}

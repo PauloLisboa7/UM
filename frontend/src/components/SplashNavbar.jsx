@@ -46,7 +46,15 @@ export default function SplashNavbar({ onNavClick }) {
             width: 'auto',
           }}
         />
-        <div className="splash-impacto-label" style={{ textTransform: 'none' }}>
+        <div style={{ 
+          textTransform: 'none',
+          color: '#FF8C00',
+          fontWeight: 700,
+          fontSize: '24px',
+          margin: 0,
+          lineHeight: 1,
+          paddingTop: '2px',
+        }}>
           CleanWork
         </div>
       </div>
@@ -69,7 +77,7 @@ export default function SplashNavbar({ onNavClick }) {
               className="splash-menu-link" 
               style={{
                 textDecoration: 'none',
-                color: '#333',
+                color: '#000000',
                 fontSize: '16px',
                 fontWeight: '500',
                 cursor: 'pointer',
@@ -85,7 +93,7 @@ export default function SplashNavbar({ onNavClick }) {
               className="splash-menu-link" 
               style={{
                 textDecoration: 'none',
-                color: '#333',
+                color: '#000000',
                 fontSize: '16px',
                 fontWeight: '500',
                 cursor: 'pointer',
@@ -101,7 +109,7 @@ export default function SplashNavbar({ onNavClick }) {
               className="splash-menu-link" 
               style={{
                 textDecoration: 'none',
-                color: '#333',
+                color: '#000000',
                 fontSize: '16px',
                 fontWeight: '500',
                 cursor: 'pointer',
@@ -117,7 +125,7 @@ export default function SplashNavbar({ onNavClick }) {
               className="splash-menu-link" 
               style={{
                 textDecoration: 'none',
-                color: '#333',
+                color: '#000000',
                 fontSize: '16px',
                 fontWeight: '500',
                 cursor: 'pointer',
@@ -139,7 +147,7 @@ export default function SplashNavbar({ onNavClick }) {
                   className="splash-menu-link" 
                   style={{
                     textDecoration: 'none',
-                    color: '#333',
+                    color: '#000000',
                     fontSize: '16px',
                     fontWeight: '500',
                     cursor: 'pointer',
@@ -155,7 +163,7 @@ export default function SplashNavbar({ onNavClick }) {
                   className="splash-menu-link" 
                   style={{
                     textDecoration: 'none',
-                    color: '#333',
+                    color: '#000000',
                     fontSize: '16px',
                     fontWeight: '500',
                     cursor: 'pointer',
@@ -171,7 +179,7 @@ export default function SplashNavbar({ onNavClick }) {
                   className="splash-menu-link" 
                   style={{
                     textDecoration: 'none',
-                    color: '#333',
+                    color: '#000000',
                     fontSize: '16px',
                     fontWeight: '500',
                     cursor: 'pointer',

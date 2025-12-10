@@ -5,12 +5,13 @@
    ------------------------- */
 :root{
   --bg: #f6f7fb;
-  --accent: #2b6cb0;
-  --accent-dark: #63b3ed;
+  --accent: #FF8C00;
+  --accent-dark: #e67e00;
   --text: #1a202c;
   --card-bg: #ffffff;
   --border: #e2e8f0;
   --muted: #718096;
+  --brand-orange: #FF8C00;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -166,12 +167,13 @@ textarea.input-field {
 /* Tema escuro: sobrescreve variáveis padrão */
 .theme-dark {
   --bg: #0f1724;
-  --accent: #60a5fa;
-  --accent-dark: #3b82f6;
-  --text: #e6eef8;
-  --card-bg: #071029;
-  --border: #1f2937;
-  --muted: #94a3b8;
+  --accent: #FFA500;
+  --accent-dark: #FF8C00;
+  --text: #f0f4f9;
+  --card-bg: #1a2332;
+  --border: #2d3748;
+  --muted: #a0aec0;
+  --brand-orange: #FFA500;
 }
 
 /* Botão flutuante de alternância de tema (canto direito) */

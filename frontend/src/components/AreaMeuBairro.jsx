@@ -11,6 +11,7 @@ export default function AreaMeuBairro() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const [solicitacoes, setSolicitacoes] = useState([]);
+  const [solicitacoesOriginais, setSolicitacoesOriginais] = useState([]);
   const [availableBairros, setAvailableBairros] = useState([]);
   const [alertas, setAlertas] = useState([]);
   const [abaSelecionada, setAbaSelecionada] = useState('solicitacoes');
@@ -40,7 +41,13 @@ export default function AreaMeuBairro() {
 
     try {
       setCarregando(true);
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+
+      if (!token) {
+        setErro('Token não encontrado. Por favor, faça login novamente.');
+        setCarregando(false);
+        return;
+      }
 
       // Carregar dados do usuário
       const resUsuario = await fetch('/api/usuarios/meu-bairro', {
@@ -49,14 +56,16 @@ export default function AreaMeuBairro() {
         },
       });
 
+      let bairroDoUsuario = '';
       if (resUsuario.ok) {
         const data = await resUsuario.json();
-        setBairro(data.bairro || '');
+        bairroDoUsuario = data.bairro || '';
+        setBairro(bairroDoUsuario);
         setEndereco(data.endereco || '');
       }
 
-      // Carregar solicitações do bairro
-      // Buscar bairros a partir do histórico do usuário (minhas solicitações)
+      // Carregar solicitações do usuário para extrair bairros únicos
+      let minhas = [];
       try {
         const resMinhas = await fetch('/api/solicitacoes/minhas-solicitacoes', {
           headers: {
@@ -66,37 +75,70 @@ export default function AreaMeuBairro() {
 
         if (resMinhas.ok) {
           const minhasData = await resMinhas.json();
-          const minhas = minhasData.solicitacoes || [];
+          minhas = minhasData.solicitacoes || [];
           setSolicitacoes(minhas);
-          // extrair bairros únicos
-          const unique = Array.from(new Set(minhas.map(s => s.bairro).filter(Boolean)));
-          setAvailableBairros(unique);
+          setSolicitacoesOriginais(minhas);
+          
+          // Extrair bairros únicos das solicitações
+          const bairrosDoUsuario = Array.from(
+            new Set(minhas.map(s => s.bairro).filter(b => b && b.trim() !== ''))
+          ).sort();
+          
+          console.log('Bairros do usuário:', bairrosDoUsuario);
+          
+          // Se há bairros nas solicitações, usa eles; caso contrário, deixa vazio
+          setAvailableBairros(bairrosDoUsuario);
+        } else {
+          console.error('Erro ao buscar solicitações:', resMinhas.status);
+          setAvailableBairros([]);
         }
       } catch (e) {
         console.error('Erro ao buscar minhas solicitações:', e);
+        setAvailableBairros([]);
       }
 
-      // Se o usuário já tem bairro configurado, carregar solicitações e alertas desse bairro
-      if (bairro) {
-        const resSolicitacoes = await fetch(`/api/solicitacoes/por-bairro/${encodeURIComponent(bairro)}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+      // Se o usuário já tem bairro configurado, filtrar solicitações e alertas desse bairro
+      if (bairroDoUsuario && minhas.length > 0) {
+        // Filtrar as solicitações já carregadas em solicitacoesOriginais
+        const solicitacoesFiltradas = minhas.filter(s => s.bairro === bairroDoUsuario);
+        setSolicitacoes(solicitacoesFiltradas);
 
-        if (resSolicitacoes.ok) {
-          const dados = await resSolicitacoes.json();
-          setSolicitacoes(dados || []);
-        }
+        // Carregar alertas do bairro a partir da API de admin (visível para usuário)
+        try {
+          const resAlertas = await fetch(`/api/solicitacoes/alertas-bairro/${encodeURIComponent(bairroDoUsuario)}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
 
-        // Carregar alertas do bairro
-        const resAlertas = await fetch('/data/avisos-alertas.json');
-        if (resAlertas.ok) {
-          const dados = await resAlertas.json();
-          const alertasBairro = dados.avisos?.filter(a => 
-            a.localidade === bairro || a.localidade === 'Toda a cidade'
-          ) || [];
-          setAlertas(alertasBairro);
+          if (resAlertas.ok) {
+            const dados = await resAlertas.json();
+            const iconByTipo = {
+              'trânsito': '🚧',
+              'energia': '⚡',
+              'coleta': '🗑️',
+              'manutenção': '🛠️',
+              'saúde': '🏥',
+              'segurança': '🚨',
+            };
+
+            const alertasBairro = (dados.alertas || []).map(a => ({
+              id: a.id,
+              titulo: a.titulo,
+              descricao: a.descricao,
+              data: a.created_at || a.updated_at,
+              icon: iconByTipo[a.tipo] || 'ℹ️',
+              tipo: a.tipo,
+              bairro: a.bairro,
+              localidade_especifica: a.localidade_especifica,
+            }));
+            setAlertas(alertasBairro);
+          } else {
+            setAlertas([]);
+          }
+        } catch (e) {
+          console.error('Erro ao buscar alertas do bairro:', e);
+          setAlertas([]);
         }
       }
 
@@ -110,13 +152,13 @@ export default function AreaMeuBairro() {
   };
 
   const handleSalvarBairro = async () => {
-    if (!bairro || !endereco) {
-      setErro('Preencha todos os campos');
+    if (!bairro) {
+      setErro('Selecione um bairro');
       return;
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       const response = await fetch('/api/usuarios/meu-bairro', {
         method: 'PUT',
         headers: {
@@ -191,7 +233,17 @@ export default function AreaMeuBairro() {
             </label>
             <select
               value={bairro}
-              onChange={(e) => setBairro(e.target.value)}
+              onChange={(e) => {
+                setBairro(e.target.value);
+                // Filtrar solicitações do bairro selecionado
+                if (e.target.value) {
+                  const solicitacoesFiltradas = solicitacoesOriginais.filter(s => s.bairro === e.target.value);
+                  setSolicitacoes(solicitacoesFiltradas);
+                } else {
+                  // Se desselecionar, mostrar todas
+                  setSolicitacoes(solicitacoesOriginais);
+                }
+              }}
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -201,38 +253,24 @@ export default function AreaMeuBairro() {
                 color: '#333',
               }}
             >
-              <option value="">Escolha seu bairro...</option>
+              <option value="">
+                {availableBairros.length > 0 
+                  ? 'Escolha seu bairro...' 
+                  : 'Carregando bairros das suas solicitações...'}
+              </option>
               {availableBairros.length > 0 ? (
                 availableBairros.map((b) => (
                   <option key={b} value={b}>{b}</option>
                 ))
               ) : (
-                // fallback para lista fixa quando não houver histórico
-                bairros.map((b) => (
-                  <option key={b} value={b}>{b}</option>
-                ))
+                <option disabled>Nenhum bairro encontrado nas suas solicitações</option>
               )}
             </select>
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 500, color: '#333', display: 'block', marginBottom: '8px' }}>
-              Endereço (opcional):
-            </label>
-            <input
-              type="text"
-              value={endereco}
-              onChange={(e) => setEndereco(e.target.value)}
-              placeholder="Rua, número, complemento..."
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                fontSize: '14px',
-                color: '#333',
-              }}
-            />
+            {availableBairros.length > 0 && (
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                {availableBairros.length} bairro{availableBairros.length !== 1 ? 's' : ''} encontrado{availableBairros.length !== 1 ? 's' : ''} nas suas solicitações
+              </p>
+            )}
           </div>
 
           <button

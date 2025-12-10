@@ -825,8 +825,19 @@ export default function SolicitarReclamacao() {
       padding: '40px',
       maxWidth: '1200px',
       margin: '0 auto',
+      color: 'var(--text)',
     }}>
-      <h2 style={{ marginBottom: '30px', color: '#333' }}>Solicitar Reclamação</h2>
+      <h2 style={{
+        marginBottom: '30px',
+        color: 'var(--text)',
+        fontWeight: 900,
+        fontSize: '2.2rem',
+        textShadow: '0 2px 12px rgba(0,0,0,0.25)',
+        letterSpacing: '0.02em',
+        fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
+      }}>
+        Solicitar Reclamação
+      </h2>
 
       <form onSubmit={handleSubmit} style={{
         display: 'grid',
@@ -844,8 +855,10 @@ export default function SolicitarReclamacao() {
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              fontWeight: '500',
-              color: '#333',
+              fontWeight: 700,
+              color: 'var(--text)',
+              fontSize: '1.08rem',
+              textShadow: '0 1px 6px rgba(0,0,0,0.18)',
             }}>
               Descrição do Problema
             </label>
@@ -874,8 +887,10 @@ export default function SolicitarReclamacao() {
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              fontWeight: '500',
-              color: '#333',
+              fontWeight: 700,
+              color: 'var(--text)',
+              fontSize: '1.08rem',
+              textShadow: '0 1px 6px rgba(0,0,0,0.18)',
             }}>
               CEP
             </label>
@@ -919,8 +934,10 @@ export default function SolicitarReclamacao() {
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              fontWeight: '500',
-              color: '#333',
+              fontWeight: 700,
+              color: 'var(--text)',
+              fontSize: '1.08rem',
+              textShadow: '0 1px 6px rgba(0,0,0,0.18)',
             }}>
               Bairro
             </label>
@@ -952,8 +969,10 @@ export default function SolicitarReclamacao() {
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              fontWeight: '500',
-              color: '#333',
+              fontWeight: 700,
+              color: 'var(--text)',
+              fontSize: '1.08rem',
+              textShadow: '0 1px 6px rgba(0,0,0,0.18)',
             }}>
               Rua/Avenida
             </label>
@@ -991,8 +1010,10 @@ export default function SolicitarReclamacao() {
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              fontWeight: '500',
-              color: '#333',
+              fontWeight: 700,
+              color: 'var(--text)',
+              fontSize: '1.08rem',
+              textShadow: '0 1px 6px rgba(0,0,0,0.18)',
             }}>
               Número (opcional)
             </label>
@@ -1018,8 +1039,10 @@ export default function SolicitarReclamacao() {
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              fontWeight: '500',
-              color: '#333',
+              fontWeight: 700,
+              color: 'var(--text)',
+              fontSize: '1.08rem',
+              textShadow: '0 1px 6px rgba(0,0,0,0.18)',
             }}>
               Anexar Fotos
             </label>

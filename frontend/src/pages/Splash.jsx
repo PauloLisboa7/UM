@@ -1,7 +1,7 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useAuth } from '../contexts/AuthContext';
 import './Splash.css';
 
 const Splash = () => {
@@ -102,18 +102,22 @@ const Splash = () => {
       {/* Header/Navbar */}
       <nav className="splash-navbar" style={{
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
         padding: '16px 40px',
-        backgroundColor: 'var(--muted-bg)',
         borderBottom: '1px solid var(--border)',
         height: '70px',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+        position: 'relative',
       }}>
-        {/* Logo + Name */}
+        {/* Logo + Name - Posicionado à esquerda */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
+          position: 'absolute',
+          left: '40px',
         }}>
           <img
             src="/logo%20cln.png"
@@ -123,7 +127,15 @@ const Splash = () => {
               width: 'auto',
             }}
           />
-          <div className="splash-impacto-label" style={{ textTransform: 'none' }}>
+          <div className="splash-impacto-label" style={{ 
+            textTransform: 'none', 
+            color: 'var(--brand-orange)', 
+            fontWeight: 700,
+            fontSize: '24px',
+            margin: 0,
+            lineHeight: 1,
+            paddingTop: '2px',
+          }}>
             CleanWork
           </div>
         </div>
@@ -136,7 +148,7 @@ const Splash = () => {
         }}>
           <a href="#quem-somos" className="splash-menu-link" style={{
             textDecoration: 'none',
-            color: 'var(--text)',
+            color: '#000000',
             fontSize: '16px',
             fontWeight: '500',
             cursor: 'pointer',
@@ -145,7 +157,7 @@ const Splash = () => {
           </a>
           <a href="#como-usar" className="splash-menu-link" style={{
             textDecoration: 'none',
-            color: '#333',
+            color: '#000000',
             fontSize: '16px',
             fontWeight: '500',
             cursor: 'pointer',
@@ -154,7 +166,7 @@ const Splash = () => {
           </a>
           <a href="#impacto-local" className="splash-menu-link" style={{
             textDecoration: 'none',
-            color: '#333',
+            color: '#000000',
             fontSize: '16px',
             fontWeight: '500',
             cursor: 'pointer',
@@ -163,7 +175,7 @@ const Splash = () => {
           </a>
           <a href="#parcerias" className="splash-menu-link" style={{
             textDecoration: 'none',
-            color: '#333',
+            color: '#000000',
             fontSize: '16px',
             fontWeight: '500',
             cursor: 'pointer',
@@ -172,7 +184,7 @@ const Splash = () => {
           </a>
           <a href="#nossa-equipe" className="splash-menu-link" style={{
             textDecoration: 'none',
-            color: '#333',
+            color: '#000000',
             fontSize: '16px',
             fontWeight: '500',
             cursor: 'pointer',
@@ -181,7 +193,7 @@ const Splash = () => {
           </a>
           <a href="#" className="splash-menu-link" style={{
             textDecoration: 'none',
-            color: '#333',
+            color: '#000000',
             fontSize: '16px',
             fontWeight: '500',
             cursor: 'pointer',
@@ -190,11 +202,13 @@ const Splash = () => {
           </a>
         </div>
 
-        {/* Botões Direita */}
+        {/* Botões Direita - Posicionado à direita */}
         <div style={{
           display: 'flex',
           gap: '16px',
           alignItems: 'center',
+          position: 'absolute',
+          right: '40px',
         }}>
           <a
             href="https://wa.me/5598999621664?text=Ol%C3%A1%2C%20quero%20falar%20com%20a%20equipe%20CleanWork"
@@ -224,8 +238,8 @@ const Splash = () => {
             style={{
             padding: '10px 24px',
             backgroundColor: 'transparent',
-            color: '#333',
-            border: '2px solid #333',
+            color: '#000000',
+            border: '2px solid #000000',
             borderRadius: '24px',
             fontSize: '14px',
             fontWeight: '600',
@@ -233,12 +247,12 @@ const Splash = () => {
             transition: 'all 0.3s',
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#333';
+            e.target.style.backgroundColor = '#000000';
             e.target.style.color = '#ffffff';
           }}
           onMouseLeave={(e) => {
             e.target.style.backgroundColor = 'transparent';
-            e.target.style.color = '#333';
+            e.target.style.color = '#000000';
           }}
           >
             Login
@@ -248,13 +262,13 @@ const Splash = () => {
 
       {/* Conteúdo em branco */}
       <div style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         padding: '40px 40px',
-        backgroundImage: 'linear-gradient(135deg, rgba(200,200,200,0.1) 0%, rgba(200,200,200,0.05) 100%)',
+        backgroundImage: 'linear-gradient(135deg, rgba(100,100,100,0.05) 0%, rgba(100,100,100,0.02) 100%)',
         minHeight: '320px',
       }}>
         {/* Imagem de fundo (simulada com uma div) */}
@@ -295,7 +309,7 @@ const Splash = () => {
 
       {/* Seção "Quem somos" */}
       <section id="quem-somos" className="splash-section delay-1" style={{
-        backgroundColor: '#f8f8f8',
+        backgroundColor: 'var(--bg)',
         padding: '100px 40px',
         position: 'relative',
         overflow: 'hidden',
@@ -317,7 +331,18 @@ const Splash = () => {
           </svg>
         </div>
 
-        <div className="splash-quem-somos-grid" style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', color: 'var(--muted)', lineHeight: 1.75 }}>
+        <div className="splash-quem-somos-grid" style={{ 
+          width: '100%', 
+          maxWidth: '1000px', 
+          margin: '0 auto', 
+          color: 'var(--text)',
+          lineHeight: 1.75,
+          backgroundColor: 'var(--card-bg)',
+          padding: '40px',
+          borderRadius: '12px',
+          border: '2px solid var(--accent)',
+          boxShadow: '0 8px 24px rgba(255, 140, 0, 0.1)'
+        }}>
           <div className="left">
             <p className="splash-quem-somos-label">Quem somos</p>
             <h2 className="splash-quem-somos-title">Nossa Missão e Time</h2>
@@ -342,7 +367,7 @@ const Splash = () => {
 
       {/* Seção "Dados e Dashboard" - O Impacto do CleanWork - PRIMEIRA */}
       <div id="como-usar" style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg)',
         padding: '120px 60px',
         display: 'flex',
         flexDirection: 'column',
@@ -372,7 +397,7 @@ const Splash = () => {
                     )}
                   </div>
                 </div>
-                <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Página Inicial</p>
+                <p style={{ marginTop: '12px', color: 'var(--muted)', fontSize: '18px', fontWeight: '500' }}>Página Inicial</p>
               </div>
 
               {/* Card 2: Cadastro de Usuário */}
@@ -388,7 +413,7 @@ const Splash = () => {
                     )}
                   </div>
                 </div>
-                <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Cadastro de Usuário</p>
+                <p style={{ marginTop: '12px', color: 'var(--muted)', fontSize: '18px', fontWeight: '500' }}>Cadastro de Usuário</p>
               </div>
 
               {/* Card 3: Página 3 (sempre visível ao lado dos outros dois) */}
@@ -404,7 +429,7 @@ const Splash = () => {
                     )}
                   </div>
                 </div>
-                <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Página de Solicitação</p>
+                <p style={{ marginTop: '12px', color: 'var(--muted)', fontSize: '18px', fontWeight: '500' }}>Página de Solicitação</p>
               </div>
               
             </div>
@@ -414,7 +439,7 @@ const Splash = () => {
 
       {/* Seção "Dados e Dashboard" - O Impacto do CleanWork */}
       <div id="impacto-local" style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg)',
         padding: '120px 60px',
         display: 'flex',
         flexDirection: 'column',
@@ -472,11 +497,11 @@ const Splash = () => {
 
           {/* Gráfico Bar - Obras por Bairro */}
           <div className="splash-chart-container" style={{
-            backgroundColor: '#f9f9f9',
+            backgroundColor: 'var(--muted-bg)',
             borderRadius: '12px',
             padding: '30px',
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 20px 0', color: '#333' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 20px 0', color: 'var(--text)' }}>
               Obras por Bairro (Top 5)
             </h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -591,7 +616,7 @@ const Splash = () => {
 
       {/* Seção "Parcerias" */}
       <div id="parcerias" style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg)',
         padding: '80px 60px',
         display: 'flex',
         flexDirection: 'column',
@@ -628,7 +653,7 @@ const Splash = () => {
 
       {/* Seção "Criadores" */}
       <div id="nossa-equipe" style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg)',
         padding: '120px 60px',
         display: 'flex',
         flexDirection: 'column',
@@ -730,7 +755,7 @@ const Splash = () => {
             }}>
               Oportunidades em novos projetos e obras.
             </h3>
-            <a href="#" style={{
+            <a href="/login" style={{
               color: '#ffffff',
               textDecoration: 'none',
               fontSize: '14px',

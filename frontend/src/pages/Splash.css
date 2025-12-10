@@ -8,10 +8,42 @@
   --muted: #6b7280;
   --card: #ffffff;
   --glass: rgba(255,255,255,0.75);
+  --brand-orange: #FF8C00;
+}
+
+/* Tema escuro para Splash */
+.theme-dark .splash-container {
+  --bg: #0f1724;
+  --muted-bg: #1a2332;
+  --accent: #FFA500;
+  --text: #f0f4f9;
+  --muted: #a0aec0;
+  --card: #1a2332;
+  --glass: rgba(26, 35, 50, 0.75);
+  --brand-orange: #FFA500;
 }
 
 /* Smooth scrolling for in-page anchors */
 html { scroll-behavior: smooth; }
+
+/* Navbar com bom contraste em ambos os temas */
+.splash-navbar {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.theme-dark .splash-navbar {
+  background-color: #2d3748 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.splash-navbar a {
+  color: #000000 !important;
+}
+
+.theme-dark .splash-navbar a {
+  color: #000000 !important;
+}
 
 /* Base container */
 .splash-container{
@@ -47,12 +79,12 @@ html { scroll-behavior: smooth; }
 .splash-quem-somos-grid{display:grid; grid-template-columns:320px 1fr; gap:40px; align-items:start}
 .splash-quem-somos-grid .left{padding-top:8px}
 .splash-quem-somos-grid .right{text-align:left}
-.splash-quem-somos-label{color:var(--accent); font-size:24px; font-weight:700; margin-bottom:18px; text-transform:uppercase; letter-spacing:1px}
+.splash-quem-somos-label{color:var(--brand-orange); font-size:24px; font-weight:700; margin-bottom:18px; text-transform:uppercase; letter-spacing:1px}
 .splash-quem-somos-title{font-size:28px; font-weight:600; margin:0 0 18px; color:var(--text)}
 .splash-quem-somos-text{color:var(--text); font-size:15px; line-height:1.8; margin:0 auto 14px; max-width:880px; text-align:left}
 
 /* Impacto (KPIs) */
-.splash-impacto-label{color:var(--accent); font-size:24px; font-weight:700; margin-bottom:18px; text-transform:uppercase; letter-spacing:1px}
+.splash-impacto-label{color:var(--brand-orange); font-size:24px; font-weight:700; margin-bottom:18px; text-transform:uppercase; letter-spacing:1px}
 .impacto-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px; margin-top:28px}
 .splash-kpi-number{font-size:36px; font-weight:700; color:var(--text)}
 .splash-kpi-card{background:linear-gradient(180deg, var(--card), #fbfbfb); border-radius:12px; padding:22px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:0 8px 24px rgba(16,24,40,0.06); transition:transform .2s ease, box-shadow .2s ease}
@@ -154,7 +186,7 @@ html { scroll-behavior: smooth; }
 
 /* Seção Parcerias */
 .splash-parcerias-label {
-  color: var(--accent) !important;
+  color: var(--brand-orange) !important;
   font-size: 24px !important;
   font-weight: 700 !important;
   margin: 0 0 18px 0 !important;
@@ -173,7 +205,7 @@ html { scroll-behavior: smooth; }
 
 /* Seção Equipe */
 .splash-equipe-label {
-  color: var(--accent) !important;
+  color: var(--brand-orange) !important;
   font-size: 24px !important;
   font-weight: 700 !important;
   margin: 0 0 20px 0 !important;

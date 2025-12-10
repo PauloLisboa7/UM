@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../services/api';
 
 const TIPOS_ALERTA = [
@@ -17,6 +17,7 @@ const BAIRROS_SL = [
   'Liberdade',
   'Bacanga',
   'Vila Passos',
+  'Vila Palmeira',
   'Cohafama',
   'Bequimão',
 ];
@@ -109,7 +110,7 @@ export default function AdminConfiguracoes() {
 
   const stats = {
     total: configuracoes.length,
-    apenasBobirro: configuracoes.filter(c => c.apenas_bairro).length,
+    apenasBairro: configuracoes.filter(c => c.apenas_bairro).length,
     coberturaTodaCidade: configuracoes.length - configuracoes.filter(c => c.apenas_bairro).length,
   };
 
@@ -149,7 +150,7 @@ export default function AdminConfiguracoes() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2196F3' }}>
-            {stats.apenasBobirro}
+            {stats.apenasBairro}
           </div>
           <div style={{ fontSize: '14px', color: '#666', marginTop: '5px' }}>
             Apenas Bairro

@@ -60,13 +60,14 @@ const Register = () => {
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
-      background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/fundo-login.jpg")',
+      background: 'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url("/fundo-login.jpg")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundAttachment: 'fixed',
       color: 'var(--text)',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      fontFamily: 'Inter, Segoe UI, Arial, sans-serif'
     }}>
       {/* Overlay escuro para melhor legibilidade */}
       <div style={{
@@ -79,7 +80,7 @@ const Register = () => {
       }}></div>
 
       <div style={{
-        background: 'rgba(255, 255, 255, 0.97)',
+        background: 'var(--card-bg)',
         padding: '2rem',
         borderRadius: '16px',
         boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
@@ -92,8 +93,10 @@ const Register = () => {
         <h1 style={{
           textAlign: 'center',
           marginBottom: '1.5rem',
-          color: '#1a202c',
-          fontWeight: 'bold'
+          color: 'var(--text)',
+          fontWeight: 800,
+          fontSize: '2rem',
+          textShadow: '0 2px 8px rgba(0,0,0,0.18)'
         }}>
           Cadastro de Usuário
         </h1>
@@ -127,8 +130,10 @@ const Register = () => {
             <label style={{
               display: 'block',
               marginBottom: '0.5rem',
-              color: '#1a202c',
-              fontWeight: '600'
+              color: 'var(--text)',
+              fontWeight: 700,
+              fontSize: '1.08rem',
+              textShadow: '0 1px 4px rgba(0,0,0,0.12)'
             }}>
               Usuário:
             </label>
@@ -139,11 +144,13 @@ const Register = () => {
               style={{
                 width: '100%',
                 padding: '0.75rem',
-                border: '1px solid #cbd5e0',
+                border: '1px solid var(--border)',
                 borderRadius: '4px',
-                background: '#ffffff',
-                color: '#1a202c',
-                boxSizing: 'border-box'
+                background: 'var(--card-bg)',
+                color: 'var(--text)',
+                boxSizing: 'border-box',
+                fontWeight: 500,
+                fontSize: '1rem'
               }}
               required
             />
@@ -152,8 +159,10 @@ const Register = () => {
             <label style={{
               display: 'block',
               marginBottom: '0.5rem',
-              color: '#1a202c',
-              fontWeight: '600'
+              color: 'var(--text)',
+              fontWeight: 700,
+              fontSize: '1.08rem',
+              textShadow: '0 1px 4px rgba(0,0,0,0.12)'
             }}>
               Senha:
             </label>
@@ -164,11 +173,13 @@ const Register = () => {
               style={{
                 width: '100%',
                 padding: '0.75rem',
-                border: '1px solid #cbd5e0',
+                border: '1px solid var(--border)',
                 borderRadius: '4px',
-                background: '#ffffff',
-                color: '#1a202c',
-                boxSizing: 'border-box'
+                background: 'var(--card-bg)',
+                color: 'var(--text)',
+                boxSizing: 'border-box',
+                fontWeight: 500,
+                fontSize: '1rem'
               }}
               required
             />

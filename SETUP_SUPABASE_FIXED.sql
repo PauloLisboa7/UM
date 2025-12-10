@@ -200,8 +200,10 @@ FOR EACH ROW EXECUTE FUNCTION trigger_set_timestamp();
 CREATE TABLE public.alertas_bairro (
   id BIGSERIAL PRIMARY KEY,
   bairro TEXT NOT NULL,
+  titulo TEXT NOT NULL,
   descricao TEXT,
   tipo TEXT,
+  localidade_especifica TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc', now()),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc', now())
 );

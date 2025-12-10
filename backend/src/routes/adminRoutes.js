@@ -1,6 +1,6 @@
 import express from 'express';
-import { adminMiddleware, authMiddleware } from '../middleware/authMiddleware.js';
 import { getSupabase } from '../config/supabaseClient.js';
+import { adminMiddleware, authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -36,7 +36,7 @@ router.post('/avisos', authMiddleware, adminMiddleware, async (req, res) => {
     const supabase = getSupabase();
     const { data, error } = await supabase
       .from('avisos')
-      .insert([{ titulo, descricao, tipo: tipo || 'trânsito', status: status || 'aviso', localidade: localidade || null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
+      .insert([{ titulo, descricao, tipo: tipo || 'trânsito', status: status || 'aviso', localidade: localidade || null }])
       .select();
     if (error) throw error;
     res.status(201).json({ aviso: data[0] });
@@ -55,7 +55,7 @@ router.put('/avisos/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const supabase = getSupabase();
     const { data, error } = await supabase
       .from('avisos')
-      .update({ titulo, descricao, tipo, status, localidade, updated_at: new Date().toISOString() })
+      .update({ titulo, descricao, tipo, status, localidade })
       .eq('id', id)
       .select();
     if (error) throw error;
@@ -108,7 +108,7 @@ router.get('/configuracoes-notificacao', authMiddleware, adminMiddleware, async 
 
     const enriched = (configs || []).map(c => ({
       ...c,
-      usuario_nome: usersMap[c.usuario_id]?.nome || null,
+      usuario_nome: usersMap[c.usuario_id]?.username || null,
       usuario_email: usersMap[c.usuario_id]?.email || null,
     }));
 
@@ -196,13 +196,16 @@ router.post('/alertas-bairro', authMiddleware, adminMiddleware, async (req, res)
     const supabase = getSupabase();
     const { data, error } = await supabase
       .from('alertas_bairro')
-      .insert([{ bairro, titulo, descricao, tipo: tipo || 'trânsito', localidade_especifica: localidade_especifica || null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
+      .insert([{ bairro, titulo, descricao, tipo: tipo || 'trânsito', localidade_especifica: localidade_especifica || null }])
       .select();
-    if (error) throw error;
+    if (error) {
+      console.error('Erro detalhado ao criar alerta:', error);
+      return res.status(500).json({ error: `Erro ao criar alerta: ${error.message || JSON.stringify(error)}` });
+    }
     res.status(201).json({ alerta: data[0] });
   } catch (err) {
     console.error('Erro ao criar alerta:', err);
-    res.status(500).json({ error: 'Erro ao criar alerta' });
+    res.status(500).json({ error: `Erro ao criar alerta: ${err.message}` });
   }
 });
 
@@ -215,7 +218,7 @@ router.put('/alertas-bairro/:id', authMiddleware, adminMiddleware, async (req, r
     const supabase = getSupabase();
     const { data, error } = await supabase
       .from('alertas_bairro')
-      .update({ bairro, titulo, descricao, tipo, localidade_especifica, updated_at: new Date().toISOString() })
+      .update({ bairro, titulo, descricao, tipo, localidade_especifica })
       .eq('id', id)
       .select();
     if (error) throw error;
