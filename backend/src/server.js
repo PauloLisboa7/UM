@@ -5,8 +5,8 @@ import express from "express";
 import { initializeSupabase } from "./config/supabaseClient.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import solicitacaoRoutes from "./routes/solicitacaoRoutes.js";
 import estatisticasRoutes from "./routes/estatisticasRoutes.js";
+import solicitacaoRoutes from "./routes/solicitacaoRoutes.js";
 
 // Load environment variables FIRST before using them
 dotenv.config();
@@ -46,6 +46,7 @@ async function testarConexaoDB() {
 
 // Porta do servidor
 const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0'; // Permite acesso de qualquer IP na rede local
 
 // Inicia o servidor após tentar verificar a conexão com o DB (não bloqueante em caso de falha)
 (async () => {
@@ -54,6 +55,10 @@ const PORT = process.env.PORT || 5000;
     console.warn('Aviso: não foi possível verificar o Neon na inicialização. Se as variáveis de ambiente estiverem corretas, verifique a conectividade da rede e a URL de conexão. O servidor continuará inicializando.');
   }
 
-  app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+  app.listen(PORT, HOST, () => {
+    console.log(`✅ Servidor rodando na porta ${PORT}`);
+    console.log(`📡 Acessível na rede local em: http://${HOST}:${PORT}`);
+    console.log(`💻 Localhost: http://localhost:${PORT}`);
+  });
 })();
 // ...existing code...
