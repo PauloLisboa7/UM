@@ -43,7 +43,7 @@ export default function AdminConfiguracoes() {
   const carregarConfiguracoes = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/admin/configuracoes-notificacao');
+      const response = await api.get('/admin/configuracoes-notificacao');
       setConfiguracoes(response.data.configuracoes || []);
       setError('');
     } catch (err) {
@@ -69,7 +69,7 @@ export default function AdminConfiguracoes() {
 
   const handleSaveEdit = async () => {
     try {
-      await api.put(`/api/admin/configuracoes-notificacao/${editingId}`, editForm);
+      await api.put(`/admin/configuracoes-notificacao/${editingId}`, editForm);
       setSuccess('Configuração atualizada com sucesso!');
       setEditingId(null);
       carregarConfiguracoes();
@@ -92,7 +92,7 @@ export default function AdminConfiguracoes() {
     if (!window.confirm('Deletar configurações deste usuário?')) return;
 
     try {
-      await api.delete(`/api/admin/configuracoes-notificacao/${usuarioId}`);
+      await api.delete(`/admin/configuracoes-notificacao/${usuarioId}`);
       setSuccess('Configuração deletada com sucesso!');
       carregarConfiguracoes();
       setTimeout(() => setSuccess(''), 3000);

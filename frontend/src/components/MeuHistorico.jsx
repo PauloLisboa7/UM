@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSolicitacao } from '../contexts/SolicitacaoContext';
 import '../styles/MeuHistorico.css';
 
 export default function MeuHistorico() {
   const { user } = useAuth();
+  const { refreshHistorico } = useSolicitacao();
   const [solicitacoes, setSolicitacoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
@@ -11,7 +13,7 @@ export default function MeuHistorico() {
 
   useEffect(() => {
     carregarSolicitacoes();
-  }, [user]);
+  }, [user, refreshHistorico]);
 
   const carregarSolicitacoes = async () => {
     if (!user) {
@@ -21,7 +23,7 @@ export default function MeuHistorico() {
 
     try {
       setCarregando(true);
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/solicitacoes/minhas-solicitacoes', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -42,29 +44,39 @@ export default function MeuHistorico() {
     }
   };
 
-  const getSolicitacoesFiltradas = () => {
-    if (filtro === 'todas') return solicitacoes;
-    return solicitacoes.filter(sol => sol.status === filtro);
-  };
-
   const getStatusColor = (status) => {
     const cores = {
       'pendente': '#FFC107',
+      'enviada_em_analise': '#FFC107',
       'em-andamento': '#2196F3',
       'resolvida': '#4CAF50',
       'rejeitada': '#F44336',
     };
-    return cores[status] || '#666';
+    const chave = (status || '').toLowerCase().replace(/\s|\//g, '_');
+    return cores[chave] || cores[status] || '#666';
   };
 
   const getStatusLabel = (status) => {
     const labels = {
       'pendente': 'Pendente',
+      'enviada_em_analise': 'Pendente',
       'em-andamento': 'Em Andamento',
       'resolvida': 'Resolvida',
       'rejeitada': 'Rejeitada',
     };
-    return labels[status] || status;
+    const chave = (status || '').toLowerCase().replace(/\s|\//g, '_');
+    return labels[chave] || labels[status] || status;
+  };
+
+  const getSolicitacoesFiltradas = () => {
+    if (filtro === 'todas') return solicitacoes;
+    return solicitacoes.filter(sol => {
+      const s = (sol.status || '').toLowerCase();
+      if (filtro === 'pendente') {
+        return s === 'pendente' || s.includes('envi') || s.includes('análise') || s.includes('analise');
+      }
+      return s === filtro;
+    });
   };
 
   const calcularTempoResolucao = (dataCriacao, dataResolucao) => {
@@ -106,7 +118,6 @@ export default function MeuHistorico() {
         </div>
       ) : (
         <>
-          {/* Filtros */}
           <div className="historico-filtros">
             <button
               onClick={() => setFiltro('todas')}
@@ -118,23 +129,22 @@ export default function MeuHistorico() {
               onClick={() => setFiltro('pendente')}
               className={`filtro-btn ${filtro === 'pendente' ? 'ativo' : ''}`}
             >
-              Pendentes ({solicitacoes.filter(s => s.status === 'pendente').length})
+              Pendentes ({solicitacoes.filter(sol => sol.status && sol.status.toLowerCase().includes('envi')).length + solicitacoes.filter(sol => sol.status && sol.status.toLowerCase() === 'pendente').length})
             </button>
             <button
               onClick={() => setFiltro('em-andamento')}
               className={`filtro-btn ${filtro === 'em-andamento' ? 'ativo' : ''}`}
             >
-              Em Andamento ({solicitacoes.filter(s => s.status === 'em-andamento').length})
+              Em Andamento ({solicitacoes.filter(sol => (sol.status || '').toLowerCase() === 'em-andamento').length})
             </button>
             <button
               onClick={() => setFiltro('resolvida')}
               className={`filtro-btn ${filtro === 'resolvida' ? 'ativo' : ''}`}
             >
-              Resolvidas ({solicitacoes.filter(s => s.status === 'resolvida').length})
+              Resolvidas ({solicitacoes.filter(sol => (sol.status || '').toLowerCase() === 'resolvida').length})
             </button>
           </div>
 
-          {/* Estatísticas */}
           <div className="historico-stats">
             <div className="stat-card">
               <div style={{ fontSize: '28px' }}>•</div>
@@ -146,20 +156,19 @@ export default function MeuHistorico() {
             <div className="stat-card">
               <div style={{ fontSize: '28px' }}>→</div>
               <div style={{ fontSize: '20px', fontWeight: 700, color: '#2196F3' }}>
-                {solicitacoes.filter(s => s.status === 'em-andamento').length}
+                {solicitacoes.filter(sol => (sol.status || '').toLowerCase() === 'em-andamento').length}
               </div>
               <div style={{ fontSize: '12px', color: '#666' }}>Em Andamento</div>
             </div>
             <div className="stat-card">
               <div style={{ fontSize: '28px' }}>✓</div>
               <div style={{ fontSize: '20px', fontWeight: 700, color: '#4CAF50' }}>
-                {solicitacoes.filter(s => s.status === 'resolvida').length}
+                {solicitacoes.filter(sol => (sol.status || '').toLowerCase() === 'resolvida').length}
               </div>
               <div style={{ fontSize: '12px', color: '#666' }}>Resolvidas</div>
             </div>
           </div>
 
-          {/* Tabela de Solicitações */}
           <div className="historico-table-container">
             <table className="historico-table">
               <thead>
@@ -167,8 +176,9 @@ export default function MeuHistorico() {
                   <th>Número</th>
                   <th>Descrição</th>
                   <th>Data</th>
-                  <th>Status</th>
-                  <th>Tempo de Resolução</th>
+                      <th>Status</th>
+                      <th>Últ. Atualização</th>
+                      <th>Tempo de Resolução</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,7 +196,7 @@ export default function MeuHistorico() {
                       </div>
                     </td>
                     <td style={{ fontSize: '13px', color: '#666' }}>
-                      {new Date(sol.data_criacao).toLocaleDateString('pt-BR')}
+                      {sol.data_criacao ? new Date(sol.data_criacao).toLocaleDateString('pt-BR') : '-'}
                     </td>
                     <td>
                       <span
@@ -204,6 +214,9 @@ export default function MeuHistorico() {
                       </span>
                     </td>
                     <td style={{ fontSize: '13px', color: '#666', textAlign: 'center' }}>
+                      {sol.ultima_atualizacao_status ? new Date(sol.ultima_atualizacao_status).toLocaleString('pt-BR') : '-'}
+                    </td>
+                    <td style={{ fontSize: '13px', color: '#666', textAlign: 'center' }}>
                       {calcularTempoResolucao(sol.data_criacao, sol.data_resolucao)}
                     </td>
                   </tr>
@@ -216,3 +229,4 @@ export default function MeuHistorico() {
     </div>
   );
 }
+

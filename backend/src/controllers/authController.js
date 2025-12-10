@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { createUser, getUserByUsername } from '../models/userModel.js';
+import { getSupabase } from '../config/supabaseClient.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -22,6 +23,19 @@ export const login = async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: 'Senha incorreta' });
 
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+
+    // Tenta gravar o evento de login (não bloqueia a resposta em caso de erro)
+    try {
+      const supabase = getSupabase();
+      const ip = req.ip || req.headers['x-forwarded-for'] || null;
+      const userAgent = req.get('User-Agent') || null;
+      await supabase
+        .from('user_logins')
+        .insert([{ user_id: user.id, username: user.username, ip, user_agent: userAgent, metadata: null, created_at: new Date().toISOString() }]);
+    } catch (logErr) {
+      console.error('[AUTH] Falha ao gravar evento de login:', logErr?.message || logErr);
+    }
+
     res.json({ token, role: user.role });
   } catch (error) {
     console.error('[AUTH] Erro no login:', error);

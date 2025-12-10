@@ -17,6 +17,14 @@ const Login = () => {
       // backend retorna { token, role } — criar um objeto user consistente para o contexto
       const userObj = { username, role: res.data.role };
       login(userObj, res.data.token);
+      // If account is admin, request Home to open admin panel on load
+      if (res.data.role === 'admin' || userObj.role === 'admin') {
+        try {
+          localStorage.setItem('initialSection', 'admin');
+        } catch (e) {
+          console.warn('Não foi possível escrever initialSection no localStorage', e);
+        }
+      }
       navigate('/home');
     } catch (err) {
       setError(err.response?.data?.message || 'Erro no login.');

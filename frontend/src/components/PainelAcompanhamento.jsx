@@ -25,8 +25,8 @@ export default function PainelAcompanhamento() {
 
   const buscarSolicitacao = async (e) => {
     e.preventDefault();
-    
-    if (!numeroRastreamento.trim()) {
+    const numero = numeroRastreamento.trim();
+    if (!numero) {
       setError('Digite o número de rastreamento');
       return;
     }
@@ -37,14 +37,21 @@ export default function PainelAcompanhamento() {
     setHistorico([]);
 
     try {
-      const response = await fetch(`/api/solicitacoes/rastreamento/${numeroRastreamento}`);
-      const data = await response.json();
+      const encoded = encodeURIComponent(numero);
+      const response = await fetch(`/api/solicitacoes/rastreamento/${encoded}`);
 
       if (!response.ok) {
-        setError('Solicitação não encontrada');
+        // Try to parse error message from JSON, fallback to generic
+        let errMsg = 'Solicitação não encontrada';
+        try {
+          const errData = await response.json();
+          if (errData?.error) errMsg = errData.error;
+        } catch (_) {}
+        setError(errMsg);
         return;
       }
 
+      const data = await response.json();
       setSolicitacao(data.solicitacao);
       setHistorico(data.historico || []);
     } catch (err) {

@@ -9,6 +9,7 @@
     "create-admin": "node scripts/create-admin.js",
     "create-user": "node scripts/create-user.js",
     "atualizar-avisos": "node scripts/atualizar-avisos.js",
+    "atualizar-avisos-daemon": "node scripts/atualizar-avisos-scheduler.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

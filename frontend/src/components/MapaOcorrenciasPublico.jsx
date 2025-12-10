@@ -44,6 +44,31 @@ export default function MapaOcorrenciasPublico() {
     };
 
     buscarSolicitacoes();
+    // Escutar eventos de atualização/exclusão para refletir alterações em tempo real
+    const onUpdated = (e) => {
+      const updated = e?.detail;
+      if (!updated) return;
+      setSolicitacoes(prev => {
+        const found = prev.find(p => p.id === updated.id);
+        if (found) return prev.map(p => p.id === updated.id ? { ...p, ...updated } : p);
+        // se não existe, adicionar no topo
+        return [updated, ...prev];
+      });
+    };
+
+    const onDeleted = (e) => {
+      const id = e?.detail?.id;
+      if (!id) return;
+      setSolicitacoes(prev => prev.filter(p => p.id !== id));
+    };
+
+    window.addEventListener('solicitacao:updated', onUpdated);
+    window.addEventListener('solicitacao:deleted', onDeleted);
+
+    return () => {
+      window.removeEventListener('solicitacao:updated', onUpdated);
+      window.removeEventListener('solicitacao:deleted', onDeleted);
+    };
   }, []);
 
   const solicitacoesFiltradas = filtroStatus === 'Todos' 
@@ -217,6 +242,12 @@ export default function MapaOcorrenciasPublico() {
                   }}>
                     <strong>ID:</strong> {solicitacao.numero_rastreamento}
                   </div>
+
+                  {(solicitacao.nome_usuario || solicitacao.username || solicitacao.user_id || solicitacao.usuario_id) && (
+                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#333' }}>
+                      👤 {solicitacao.nome_usuario || solicitacao.username || solicitacao.user_id || solicitacao.usuario_id}
+                    </div>
+                  )}
 
                   <div style={{
                     marginTop: '12px',

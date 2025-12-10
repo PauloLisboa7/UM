@@ -101,9 +101,32 @@ export const solicitacaoController = {
 
       const solicitacoes = await solicitacaoModel.listarPorUsuario(user_id);
 
-      res.json({
-        solicitacoes,
-      });
+      // Enriquecer com última atualização de status (buscar em lote status_historico)
+      try {
+        const solicitacaoIds = solicitacoes.map(s => s.id).filter(Boolean);
+        if (solicitacaoIds.length > 0) {
+          const { data: historicos, error: histErr } = await getSupabase()
+            .from('status_historico')
+            .select('solicitacao_id, created_at')
+            .in('solicitacao_id', solicitacaoIds)
+            .order('created_at', { ascending: false });
+
+          if (!histErr && historicos) {
+            const lastMap = {};
+            for (const h of historicos) {
+              if (!lastMap[h.solicitacao_id]) lastMap[h.solicitacao_id] = h.created_at;
+            }
+            // Anexar campo ultima_atualizacao_status em cada solicitacao
+            for (const s of solicitacoes) {
+              s.ultima_atualizacao_status = lastMap[s.id] || null;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Erro ao enriquecer solicitações com histórico:', e);
+      }
+
+      res.json({ solicitacoes });
     } catch (error) {
       console.error('Erro ao listar solicitações:', error);
       res.status(500).json({
@@ -133,14 +156,131 @@ export const solicitacaoController = {
     try {
       const solicitacoes = await solicitacaoModel.listarTodas();
 
-      res.json({
-        solicitacoes,
+      // Enriquecer com nomes de usuário
+      const userIds = [...new Set((solicitacoes || []).map(s => s.user_id || s.usuario_id).filter(Boolean))];
+      let usersMap = {};
+      if (userIds.length > 0) {
+        try {
+          // Tentar busca em lote primeiro
+          const supabase = getSupabase();
+          const { data: users, error: usersErr } = await supabase
+            .from('users')
+            .select('id, username, email')
+            .in('id', userIds);
+
+          if (!usersErr && users && users.length > 0) {
+            usersMap = (users || []).reduce((acc, u) => { acc[u.id] = u; return acc; }, {});
+          } else {
+            // Caso a busca em lote não retorne (possível mismatch de tipo), buscar individualmente
+            console.log('[solicitacaoController] coleta userIds:', userIds.slice(0, 20));
+            await Promise.all(userIds.map(async (uid) => {
+              try {
+                const { data: singleUser, error: singleErr } = await supabase
+                  .from('users')
+                  .select('id, username, email')
+                  .eq('id', uid)
+                  .limit(1)
+                  .single();
+                if (!singleErr && singleUser) usersMap[singleUser.id] = singleUser;
+              } catch (e) {
+                // tentar como string
+                try {
+                  const { data: singleUser2, error: singleErr2 } = await supabase
+                    .from('users')
+                    .select('id, username, email')
+                    .eq('id', String(uid))
+                    .limit(1)
+                    .single();
+                  if (!singleErr2 && singleUser2) usersMap[singleUser2.id] = singleUser2;
+                } catch (ee) {
+                  // ignore
+                }
+              }
+            }));
+          }
+        } catch (e) {
+          console.error('Erro ao buscar usuários para enriquecer solicitações:', e);
+        }
+      }
+
+      // Enriquecer com histórico de status e última atualização
+      const solicitacaoIds = (solicitacoes || []).map(s => s.id).filter(Boolean);
+      let historicosMap = {};
+      let ultimaMap = {};
+      if (solicitacaoIds.length > 0) {
+        try {
+          const { data: historicos, error: histErr } = await getSupabase()
+            .from('status_historico')
+            .select('*')
+            .in('solicitacao_id', solicitacaoIds)
+            .order('created_at', { ascending: false });
+
+          if (!histErr && historicos) {
+            for (const h of historicos) {
+              if (!historicosMap[h.solicitacao_id]) historicosMap[h.solicitacao_id] = [];
+              historicosMap[h.solicitacao_id].push(h);
+              if (!ultimaMap[h.solicitacao_id]) ultimaMap[h.solicitacao_id] = h.created_at;
+            }
+          }
+        } catch (e) {
+          console.error('Erro ao buscar histórico para enriquecer solicitações:', e);
+        }
+      }
+
+      const enriched = (solicitacoes || []).map(s => {
+        const u = usersMap[s.user_id || s.usuario_id];
+        const nome = u?.nome || u?.username || null;
+        const email = u?.email || null;
+        return {
+          ...s,
+          nome_usuario: nome,
+          usuario_nome: nome, // compatibilidade com frontends antigos
+          email_usuario: email,
+          usuario_email: email,
+          ultima_atualizacao_status: ultimaMap[s.id] || null,
+          historico_status: (historicosMap[s.id] || []).slice(0, 10), // trazer até 10 entradas mais recentes
+        };
       });
+
+      // Log summary to help debugging in dev
+      try {
+        const foundNames = enriched.filter(s => s.nome_usuario).length;
+        console.log(`[solicitacaoController] listarTodas: solicitacoes=${enriched.length}, com_nome_usuario=${foundNames}, usuarios_encontrados=${Object.keys(usersMap).length}`);
+      } catch (e) {
+        // ignore logging errors
+      }
+
+      res.json({ solicitacoes: enriched });
     } catch (error) {
       console.error('Erro ao listar solicitações:', error);
       res.status(500).json({
         error: 'Erro ao listar solicitações',
       });
+    }
+  },
+
+  // Deletar solicitação (admin)
+  async deletar(req, res) {
+    try {
+      const { id } = req.params;
+      await solicitacaoModel.excluir(id);
+      res.json({ message: 'Solicitação deletada com sucesso' });
+    } catch (error) {
+      console.error('Erro ao deletar solicitação:', error);
+      res.status(500).json({ error: 'Erro ao deletar solicitação' });
+    }
+  },
+
+  // Atualizar campos da solicitação (admin)
+  async atualizarPorAdmin(req, res) {
+    try {
+      const { id } = req.params;
+      const dados = req.body;
+      const updated = await solicitacaoModel.atualizarPorAdmin(id, dados);
+      res.json({ solicitacao: updated });
+    } catch (error) {
+      console.error('Erro ao atualizar solicitação (admin):', error);
+      res.status(500).json({ error: 'Erro ao atualizar solicitação' });
     }
   },
 

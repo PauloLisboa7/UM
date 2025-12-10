@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { sendWelcomeEmailFromFrontend } from '../services/emailService';
 
 const API_URL = '/api';
 
@@ -37,6 +38,13 @@ const Register = () => {
         const msg = body.message || body.__raw || 'Erro no cadastro';
         setError(msg);
         return;
+      }
+
+      // Enviar email de boas-vindas
+      try {
+        await sendWelcomeEmailFromFrontend(email, username);
+      } catch (emailErr) {
+        console.warn('Aviso: email de boas-vindas não foi enviado', emailErr);
       }
 
       alert('Cadastro realizado com sucesso! Faça login.');

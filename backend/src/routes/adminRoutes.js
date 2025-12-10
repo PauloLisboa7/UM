@@ -1,5 +1,6 @@
 import express from 'express';
 import { adminMiddleware, authMiddleware } from '../middleware/authMiddleware.js';
+import { getSupabase } from '../config/supabaseClient.js';
 
 const router = express.Router();
 
@@ -10,6 +11,7 @@ const router = express.Router();
 // GET: Listar todos os avisos
 router.get('/avisos', authMiddleware, adminMiddleware, async (req, res) => {
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('avisos')
       .select('*')
@@ -31,6 +33,7 @@ router.post('/avisos', authMiddleware, adminMiddleware, async (req, res) => {
   }
 
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('avisos')
       .insert([{ titulo, descricao, tipo: tipo || 'trânsito', status: status || 'aviso', localidade: localidade || null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
@@ -49,6 +52,7 @@ router.put('/avisos/:id', authMiddleware, adminMiddleware, async (req, res) => {
   const { titulo, descricao, tipo, status, localidade } = req.body;
 
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('avisos')
       .update({ titulo, descricao, tipo, status, localidade, updated_at: new Date().toISOString() })
@@ -68,6 +72,7 @@ router.delete('/avisos/:id', authMiddleware, adminMiddleware, async (req, res) =
   const { id } = req.params;
 
   try {
+    const supabase = getSupabase();
     const { error } = await supabase
       .from('avisos')
       .delete()
@@ -85,6 +90,7 @@ router.delete('/avisos/:id', authMiddleware, adminMiddleware, async (req, res) =
 // GET: Listar todas as configurações de notificação
 router.get('/configuracoes-notificacao', authMiddleware, adminMiddleware, async (req, res) => {
   try {
+    const supabase = getSupabase();
     const { data: configs, error: configsErr } = await supabase
       .from('configuracoes_notificacao')
       .select('*');
@@ -95,7 +101,7 @@ router.get('/configuracoes-notificacao', authMiddleware, adminMiddleware, async 
     if (userIds.length > 0) {
       const { data: users } = await supabase
         .from('users')
-        .select('id, nome, email')
+        .select('id, username, email')
         .in('id', userIds);
       usersMap = (users || []).reduce((acc, u) => { acc[u.id] = u; return acc; }, {});
     }
@@ -119,6 +125,7 @@ router.put('/configuracoes-notificacao/:usuarioId', authMiddleware, adminMiddlew
   const { tipos_alerta, apenas_bairro, bairro, raio } = req.body;
 
   try {
+    const supabase = getSupabase();
     const updateObj = {
       tipos_alerta: tipos_alerta ? tipos_alerta : null,
       apenas_bairro,
@@ -145,6 +152,7 @@ router.delete('/configuracoes-notificacao/:usuarioId', authMiddleware, adminMidd
   const { usuarioId } = req.params;
 
   try {
+    const supabase = getSupabase();
     const { error } = await supabase
       .from('configuracoes_notificacao')
       .delete()
@@ -162,6 +170,7 @@ router.delete('/configuracoes-notificacao/:usuarioId', authMiddleware, adminMidd
 // GET: Listar todos os alertas por bairro
 router.get('/alertas-bairro', authMiddleware, adminMiddleware, async (req, res) => {
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('alertas_bairro')
       .select('*')
@@ -184,6 +193,7 @@ router.post('/alertas-bairro', authMiddleware, adminMiddleware, async (req, res)
   }
 
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('alertas_bairro')
       .insert([{ bairro, titulo, descricao, tipo: tipo || 'trânsito', localidade_especifica: localidade_especifica || null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
@@ -202,6 +212,7 @@ router.put('/alertas-bairro/:id', authMiddleware, adminMiddleware, async (req, r
   const { bairro, titulo, descricao, tipo, localidade_especifica } = req.body;
 
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('alertas_bairro')
       .update({ bairro, titulo, descricao, tipo, localidade_especifica, updated_at: new Date().toISOString() })
@@ -221,6 +232,7 @@ router.delete('/alertas-bairro/:id', authMiddleware, adminMiddleware, async (req
   const { id } = req.params;
 
   try {
+    const supabase = getSupabase();
     const { error } = await supabase
       .from('alertas_bairro')
       .delete()
@@ -234,3 +246,115 @@ router.delete('/alertas-bairro/:id', authMiddleware, adminMiddleware, async (req
 });
 
 export default router;
+
+// GET: listar usuários (admin) - aceita query param `ids` com lista separada por vírgula
+router.get('/usuarios', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const supabase = getSupabase();
+    const idsParam = req.query.ids;
+    let query = supabase.from('users').select('id, username, email');
+    if (idsParam) {
+      const ids = idsParam.split(',').map(id => Number(id)).filter(Boolean);
+      if (ids.length > 0) query = query.in('id', ids);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    res.json({ users: data || [] });
+  } catch (err) {
+    console.error('Erro ao listar usuários (admin):', err);
+    res.status(500).json({ error: 'Erro ao listar usuários' });
+  }
+});
+
+// GET: listar eventos de login dos usuários (admin)
+router.get('/logins', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const supabase = getSupabase();
+
+    // paginação opcional
+    const limit = Math.min(500, Number(req.query.limit || 200));
+
+    const { data, error } = await supabase
+      .from('user_logins')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    const userIds = [...new Set((data || []).map(d => d.user_id).filter(Boolean))];
+    let usersMap = {};
+    if (userIds.length > 0) {
+      const { data: users } = await supabase
+        .from('users')
+        .select('id, username, email')
+        .in('id', userIds);
+      usersMap = (users || []).reduce((acc, u) => { acc[u.id] = u; return acc; }, {});
+    }
+
+    const enriched = (data || []).map(item => ({
+      ...item,
+      usuario_nome: usersMap[item.user_id]?.nome || usersMap[item.user_id]?.username || null,
+    }));
+
+    res.json({ logins: enriched });
+  } catch (err) {
+    console.error('Erro ao listar logins (admin):', err);
+    res.status(500).json({ error: 'Erro ao listar logins' });
+  }
+});
+
+// DELETE: deletar evento de login
+router.delete('/logins/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supabase = getSupabase();
+    const { error } = await supabase
+      .from('user_logins')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    res.json({ message: 'Evento de login deletado' });
+  } catch (err) {
+    console.error('Erro ao deletar login (admin):', err);
+    res.status(500).json({ error: 'Erro ao deletar login' });
+  }
+});
+
+// PUT: editar evento de login (metadados)
+router.put('/logins/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body || {};
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('user_logins')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select();
+    if (error) throw error;
+    res.json({ login: data[0] });
+  } catch (err) {
+    console.error('Erro ao atualizar login (admin):', err);
+    res.status(500).json({ error: 'Erro ao atualizar login' });
+  }
+});
+
+// GET: listar solicitações de um usuário específico (admin)
+router.get('/usuarios/:id/solicitacoes', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const usuarioId = req.params.id;
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('solicitacoes')
+      .select('*')
+      .eq('user_id', usuarioId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ solicitacoes: data || [] });
+  } catch (err) {
+    console.error('Erro ao listar solicitacoes do usuario (admin):', err);
+    res.status(500).json({ error: 'Erro ao listar solicitacoes do usuario' });
+  }
+});

@@ -193,9 +193,10 @@ export default function SplashNavbar({ onNavClick }) {
             style={{
               textDecoration: 'none',
               color: '#FF8C00',
-              fontSize: '16px',
-              fontWeight: '600',
+              fontSize: '20px',
+              fontWeight: '700',
               cursor: 'pointer',
+              letterSpacing: '0.2px',
             }}>
             Acompanhar Solicitações
           </a>

@@ -61,7 +61,7 @@ const avisosTemplate = {
   proximaAtualizacao: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
 };
 
-function atualizarAvisos() {
+export function atualizarAvisos() {
   try {
     // Criar diretório se não existir
     const dir = path.dirname(avisosPath);
@@ -78,5 +78,7 @@ function atualizarAvisos() {
     process.exit(1);
   }
 }
-
-atualizarAvisos();
+// If executed directly, run once (so `node scripts/atualizar-avisos.js` keeps backwards compatibility)
+if (process.argv[1] && process.argv[1].endsWith('atualizar-avisos.js')) {
+  atualizarAvisos();
+}

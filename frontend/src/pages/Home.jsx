@@ -13,7 +13,28 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function Home() {
   const { user, isAdmin } = useAuth();
-  const [activeSection, setActiveSection] = useState('avisos');
+  const [activeSection, setActiveSection] = useState(() => {
+    try {
+      const initial = localStorage.getItem('initialSection');
+      if (initial) {
+        localStorage.removeItem('initialSection');
+        return initial;
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // Try to read stored user synchronously so reloads (F5) pick up role immediately
+    try {
+      const raw = localStorage.getItem('user');
+      const storedUser = raw && raw !== 'undefined' ? JSON.parse(raw) : null;
+      if (storedUser && storedUser.role === 'admin') return 'admin';
+    } catch (e) {
+      // ignore parse errors
+    }
+
+    return 'solicitar-reclamacao';
+  });
 
   const handleNavClick = (section) => {
     setActiveSection(section);

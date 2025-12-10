@@ -6,6 +6,7 @@ import { initializeSupabase } from "./config/supabaseClient.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import solicitacaoRoutes from "./routes/solicitacaoRoutes.js";
+import estatisticasRoutes from "./routes/estatisticasRoutes.js";
 
 // Load environment variables FIRST before using them
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/solicitacoes", solicitacaoRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/estatisticas", estatisticasRoutes);
 
 // Rotas de exemplo
 app.get("/", (req, res) => {

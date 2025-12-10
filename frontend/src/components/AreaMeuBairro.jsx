@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSolicitacao } from '../contexts/SolicitacaoContext';
 import '../styles/AreaMeuBairro.css';
 
 export default function AreaMeuBairro() {
   const { user } = useAuth();
+  const { refreshBairro } = useSolicitacao();
   const [bairro, setBairro] = useState('');
   const [endereco, setEndereco] = useState('');
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const [solicitacoes, setSolicitacoes] = useState([]);
+  const [availableBairros, setAvailableBairros] = useState([]);
   const [alertas, setAlertas] = useState([]);
   const [abaSelecionada, setAbaSelecionada] = useState('solicitacoes');
 
@@ -27,7 +30,7 @@ export default function AreaMeuBairro() {
 
   useEffect(() => {
     carregarDadosBairro();
-  }, [user]);
+  }, [user, refreshBairro]);
 
   const carregarDadosBairro = async () => {
     if (!user) {
@@ -53,8 +56,29 @@ export default function AreaMeuBairro() {
       }
 
       // Carregar solicitações do bairro
+      // Buscar bairros a partir do histórico do usuário (minhas solicitações)
+      try {
+        const resMinhas = await fetch('/api/solicitacoes/minhas-solicitacoes', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (resMinhas.ok) {
+          const minhasData = await resMinhas.json();
+          const minhas = minhasData.solicitacoes || [];
+          setSolicitacoes(minhas);
+          // extrair bairros únicos
+          const unique = Array.from(new Set(minhas.map(s => s.bairro).filter(Boolean)));
+          setAvailableBairros(unique);
+        }
+      } catch (e) {
+        console.error('Erro ao buscar minhas solicitações:', e);
+      }
+
+      // Se o usuário já tem bairro configurado, carregar solicitações e alertas desse bairro
       if (bairro) {
-        const resSolicitacoes = await fetch(`/api/solicitacoes/por-bairro/${bairro}`, {
+        const resSolicitacoes = await fetch(`/api/solicitacoes/por-bairro/${encodeURIComponent(bairro)}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -130,8 +154,11 @@ export default function AreaMeuBairro() {
         <h2 style={{ fontSize: '28px', fontWeight: 700, margin: '0 0 8px 0', color: '#333' }}>
           📍 Área do Meu Bairro
         </h2>
-        <p style={{ fontSize: '14px', color: '#666', margin: 0 }}>
-          Acompanhe solicitações e alertas específicos da sua região
+        <p style={{ fontSize: '12px', color: '#666', margin: '0 0 8px 0' }}>
+          📍 {bairro || (user?.bairro || '—')}
+        </p>
+        <p style={{ fontSize: '12px', color: '#666', margin: '0 0 8px 0' }}>
+          👤 {user ? (user.nome || user.username || user.email || user.id) : 'Visitante'}
         </p>
       </div>
 
@@ -175,9 +202,16 @@ export default function AreaMeuBairro() {
               }}
             >
               <option value="">Escolha seu bairro...</option>
-              {bairros.map((b) => (
-                <option key={b} value={b}>{b}</option>
-              ))}
+              {availableBairros.length > 0 ? (
+                availableBairros.map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))
+              ) : (
+                // fallback para lista fixa quando não houver histórico
+                bairros.map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))
+              )}
             </select>
           </div>
 

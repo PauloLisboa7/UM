@@ -17,6 +17,7 @@ export default function AdminGerenciarAvisos() {
   const [success, setSuccess] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [recentLoginCount, setRecentLoginCount] = useState(null);
   
   const [formData, setFormData] = useState({
     titulo: '',
@@ -25,15 +26,17 @@ export default function AdminGerenciarAvisos() {
     status: 'aviso',
     localidade: '',
   });
+  const TIPOS_IDS = TIPOS_ALERTA.map(t => t.id);
 
   useEffect(() => {
     carregarAvisos();
+    carregarRecentLogins();
   }, []);
 
   const carregarAvisos = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/admin/avisos');
+      const response = await api.get('/admin/avisos');
       setAvisos(response.data.avisos || []);
       setError('');
     } catch (err) {
@@ -50,9 +53,28 @@ export default function AdminGerenciarAvisos() {
     }
   };
 
+  const carregarRecentLogins = async () => {
+    try {
+      const resp = await api.get('/admin/logins?limit=500');
+      const logins = resp.data.logins || [];
+      const since = Date.now() - (24 * 60 * 60 * 1000);
+      const recent = logins.filter(l => new Date(l.created_at).getTime() >= since).length;
+      setRecentLoginCount(recent);
+    } catch (err) {
+      console.error('Erro ao carregar logins recentes:', err);
+      setRecentLoginCount(null);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // handle custom tipo input
+  const handleCustomTipoChange = (e) => {
+    const { value } = e.target;
+    setFormData(prev => ({ ...prev, custom_tipo: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -64,11 +86,19 @@ export default function AdminGerenciarAvisos() {
     }
 
     try {
+      // prepare payload: if tipo is 'outro' and custom_tipo provided, use it
+      const payload = { ...formData };
+      if (payload.tipo === 'outro' && payload.custom_tipo && payload.custom_tipo.trim()) {
+        payload.tipo = payload.custom_tipo.trim();
+      }
+      // remove helper field before sending
+      delete payload.custom_tipo;
+
       if (editingId) {
-        await api.put(`/api/admin/avisos/${editingId}`, formData);
+        await api.put(`/admin/avisos/${editingId}`, payload);
         setSuccess('Aviso atualizado com sucesso!');
       } else {
-        await api.post('/api/admin/avisos', formData);
+        await api.post('/admin/avisos', payload);
         setSuccess('Aviso criado com sucesso!');
       }
       
@@ -84,10 +114,13 @@ export default function AdminGerenciarAvisos() {
   };
 
   const handleEdit = (aviso) => {
+    // If aviso.tipo is not in predefined list, use 'outro' and set custom_tipo
+    const isKnown = TIPOS_IDS.includes(aviso.tipo);
     setFormData({
       titulo: aviso.titulo,
       descricao: aviso.descricao,
-      tipo: aviso.tipo,
+      tipo: isKnown ? aviso.tipo : 'outro',
+      custom_tipo: isKnown ? '' : aviso.tipo,
       status: aviso.status,
       localidade: aviso.localidade || '',
     });
@@ -99,7 +132,7 @@ export default function AdminGerenciarAvisos() {
     if (!window.confirm('Tem certeza que deseja deletar este aviso?')) return;
 
     try {
-      await api.delete(`/api/admin/avisos/${id}`);
+      await api.delete(`/admin/avisos/${id}`);
       setSuccess('Aviso deletado com sucesso!');
       carregarAvisos();
       setTimeout(() => setSuccess(''), 3000);
@@ -133,23 +166,28 @@ export default function AdminGerenciarAvisos() {
     <div style={{ padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2 style={{ fontSize: '20px', color: '#333' }}>Gerenciar Avisos e Alertas</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#FF8C00',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background 0.3s',
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#E57C00'}
-          onMouseOut={(e) => e.target.style.backgroundColor = '#FF8C00'}
-        >
-          {showForm ? '❌ Cancelar' : '➕ Novo Aviso'}
-        </button>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ background: '#fff', padding: '8px 12px', borderRadius: '8px', border: '1px solid #eee', fontSize: '14px' }}>
+            Logins últimas 24h: <strong style={{ marginLeft: '6px' }}>{recentLoginCount === null ? '—' : recentLoginCount}</strong>
+          </div>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#FF8C00',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              transition: 'background 0.3s',
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#E57C00'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#FF8C00'}
+          >
+            {showForm ? '❌ Cancelar' : '➕ Novo Aviso'}
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -212,7 +250,22 @@ export default function AdminGerenciarAvisos() {
                       {tipo.icon} {tipo.label}
                     </option>
                   ))}
+                  <option key="outro" value="outro">📝 Outro (especificar)</option>
                 </select>
+
+                {/* Campo para tipo customizado quando selecionar 'Outro' */}
+                {formData.tipo === 'outro' && (
+                  <div style={{ marginTop: '10px' }}>
+                    <input
+                      type="text"
+                      name="custom_tipo"
+                      value={formData.custom_tipo || ''}
+                      onChange={handleCustomTipoChange}
+                      placeholder="Descreva o tipo de alerta (ex: limpeza especial)"
+                      style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div>

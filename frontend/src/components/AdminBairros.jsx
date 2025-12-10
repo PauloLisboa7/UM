@@ -40,7 +40,7 @@ export default function AdminBairros() {
   const carregarAertasBairro = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/admin/alertas-bairro');
+      const response = await api.get('/admin/alertas-bairro');
       setAertasBairro(response.data.alertas || []);
       setError('');
     } catch (err) {
@@ -68,10 +68,10 @@ export default function AdminBairros() {
 
     try {
       if (editingId) {
-        await api.put(`/api/admin/alertas-bairro/${editingId}`, formData);
+        await api.put(`/admin/alertas-bairro/${editingId}`, formData);
         setSuccess('Alerta atualizado com sucesso!');
       } else {
-        await api.post('/api/admin/alertas-bairro', formData);
+        await api.post('/admin/alertas-bairro', formData);
         setSuccess('Alerta criado com sucesso!');
       }
       
@@ -108,7 +108,7 @@ export default function AdminBairros() {
     if (!window.confirm('Tem certeza que deseja deletar este alerta?')) return;
 
     try {
-      await api.delete(`/api/admin/alertas-bairro/${id}`);
+      await api.delete(`/admin/alertas-bairro/${id}`);
       setSuccess('Alerta deletado com sucesso!');
       carregarAertasBairro();
       setTimeout(() => setSuccess(''), 3000);

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import './Splash.css';
@@ -6,6 +7,83 @@ import './Splash.css';
 const Splash = () => {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = React.useState(null);
+  const { user, isAdmin } = useAuth();
+  const [kpiTotal, setKpiTotal] = React.useState(0);
+  const [kpiAndamento, setKpiAndamento] = React.useState(0);
+  const [kpiConcluidas, setKpiConcluidas] = React.useState(0);
+  const [kpiTaxa, setKpiTaxa] = React.useState('0%');
+  const [statusChartData, setStatusChartData] = React.useState([]);
+  const [bairroChartData, setBairroChartData] = React.useState([]);
+
+  React.useEffect(() => {
+    let mounted = true;
+    async function fetchImpacto() {
+      try {
+        const res = await fetch('/api/estatisticas/impacto');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+        setKpiTotal(data.total || 0);
+        setKpiConcluidas(data.concluido || 0);
+        setKpiTaxa((data.taxa_conclusao_percent || 0) + '%');
+
+        // tentar mapear 'em andamento' por status keys
+        const porStatus = data.por_status || {};
+        const andamentoKey = Object.keys(porStatus).find(k => k.toLowerCase().includes('and') || k.toLowerCase().includes('execu') || k.toLowerCase().includes('em execução'));
+        const andamento = andamentoKey ? porStatus[andamentoKey] : 0;
+        setKpiAndamento(andamento || 0);
+
+        // status chart data
+        const sData = Object.entries(porStatus).map(([name, value]) => ({ name, value }));
+        setStatusChartData(sData);
+
+        // bairro top
+        const bairrosTop = data.bairros_top || [];
+        const bData = bairrosTop.map(b => ({ name: b.bairro, value: b.count }));
+        setBairroChartData(bData);
+      } catch (e) {
+        console.error('Erro ao buscar impacto:', e);
+      }
+    }
+
+    fetchImpacto();
+    const id = setInterval(fetchImpacto, 30000);
+
+    // Try to open an SSE connection for real-time updates; fallback to polling above
+    let es;
+    try {
+      es = new EventSource('/api/estatisticas/impacto/stream');
+      es.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (!mounted) return;
+          setKpiTotal(data.total || 0);
+          setKpiConcluidas(data.concluido || 0);
+          setKpiTaxa((data.taxa_conclusao_percent || 0) + '%');
+          const porStatus = data.por_status || {};
+          const andamentoKey = Object.keys(porStatus).find(k => k.toLowerCase().includes('and') || k.toLowerCase().includes('execu') || k.toLowerCase().includes('em execução'));
+          const andamento = andamentoKey ? porStatus[andamentoKey] : 0;
+          setKpiAndamento(andamento || 0);
+          const sData = Object.entries(porStatus).map(([name, value]) => ({ name, value }));
+          setStatusChartData(sData);
+          const bairrosTop = data.bairros_top || [];
+          const bData = bairrosTop.map(b => ({ name: b.bairro, value: b.count }));
+          setBairroChartData(bData);
+        } catch (err) {
+          console.error('Erro processando SSE impacto:', err);
+        }
+      };
+      es.onerror = (err) => {
+        // if SSE fails, we keep polling as fallback
+        console.warn('SSE connection errored, falling back to polling', err);
+        try { es.close(); } catch (e) {}
+      };
+    } catch (e) {
+      console.warn('EventSource não suportado ou falhou:', e);
+    }
+
+    return () => { mounted = false; clearInterval(id); if (es) es.close(); };
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -15,7 +93,7 @@ const Splash = () => {
     <div className="splash-container" style={{
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--bg)',
       margin: 0,
       padding: 0,
       overflow: 'hidden',
@@ -27,8 +105,8 @@ const Splash = () => {
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '16px 40px',
-        backgroundColor: '#f5f5f5',
-        borderBottom: '1px solid #e0e0e0',
+        backgroundColor: 'var(--muted-bg)',
+        borderBottom: '1px solid var(--border)',
         height: '70px',
       }}>
         {/* Logo + Name */}
@@ -58,7 +136,7 @@ const Splash = () => {
         }}>
           <a href="#quem-somos" className="splash-menu-link" style={{
             textDecoration: 'none',
-            color: '#333',
+            color: 'var(--text)',
             fontSize: '16px',
             fontWeight: '500',
             cursor: 'pointer',
@@ -300,7 +378,7 @@ const Splash = () => {
               {/* Card 2: Cadastro de Usuário */}
               <div className="splash-showcase-card splash-showcase-card--center" onMouseEnter={() => setHoveredCard(1)} onMouseLeave={() => setHoveredCard(null)}>
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                  <img src="/screenshots/pagina 2.png" alt="Cadastro de Usuário" />
+                    <img src="/screenshots/pagina 2.png" alt="Cadastro de Usuário" />
                   <div className="splash-card-tooltip-circle" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                     <div className="splash-tooltip-dot"></div>
                     {hoveredCard === 1 && (
@@ -313,21 +391,22 @@ const Splash = () => {
                 <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Cadastro de Usuário</p>
               </div>
 
-              {/* Card 3: Solicitar Reclamação */}
+              {/* Card 3: Página 3 (sempre visível ao lado dos outros dois) */}
               <div className="splash-showcase-card" onMouseEnter={() => setHoveredCard(2)} onMouseLeave={() => setHoveredCard(null)}>
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                  <img src="/screenshots/pagina 3.png" alt="Solicitar Reclamação" />
+                  <img src="/screenshots/pagina 3.png" alt="Página de Solicitação" />
                   <div className="splash-card-tooltip-circle" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                     <div className="splash-tooltip-dot"></div>
                     {hoveredCard === 2 && (
                       <div className="splash-tooltip-box">
-                        Reporte problemas com infraestrutura e limpeza urbana na sua região
+                        Visualização da Página de Solicitação — exemplo da tela de envio de reporte
                       </div>
                     )}
                   </div>
                 </div>
-                <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Solicitar Reclamação</p>
+                <p style={{ marginTop: '12px', color: '#666', fontSize: '18px', fontWeight: '500' }}>Página de Solicitação</p>
               </div>
+              
             </div>
           </section>
         </div>
@@ -349,7 +428,7 @@ const Splash = () => {
 
         {/* Título principal */}
         <h2 className="splash-impacto-title" style={{ fontSize: '30px', fontWeight: 600, margin: '0 0 12px 0' }}>
-          Obras em Tempo Real em São Luís
+          Solicitações em Tempo Real em São Luís
         </h2>
 
         {/* Gráfico de Status das Obras */}
@@ -371,30 +450,24 @@ const Splash = () => {
               Status das Obras
             </h3>
             <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={[
-                    { name: 'Em Andamento', value: 156, color: '#FF8C00' },
-                    { name: 'Concluídas', value: 89, color: '#4CAF50' },
-                    { name: 'Pendentes', value: 52, color: '#F44336' },
-                    { name: 'Pausadas', value: 28, color: '#FFC107' },
-                  ]}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  <Cell fill="#FF8C00" />
-                  <Cell fill="#4CAF50" />
-                  <Cell fill="#F44336" />
-                  <Cell fill="#FFC107" />
-                </Pie>
-                <Tooltip formatter={(value) => `${value} obras`} />
-              </PieChart>
-            </ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={statusChartData.length > 0 ? statusChartData : [{ name: 'Sem Dados', value: 1 }]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: ${value}`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {(statusChartData.length > 0 ? statusChartData : [{}, {}, {}, {}]).map((entry, idx) => (
+                      <Cell key={`cell-${idx}`} fill={["#FF8C00", "#4CAF50", "#F44336", "#FFC107"][idx % 4]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `${value} obras`} />
+                </PieChart>
+              </ResponsiveContainer>
           </div>
 
           {/* Gráfico Bar - Obras por Bairro */}
@@ -408,13 +481,7 @@ const Splash = () => {
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
-                data={[
-                  { name: 'Centro', value: 45 },
-                  { name: 'Praia Grande', value: 38 },
-                  { name: 'Calhau', value: 32 },
-                  { name: 'São Francisco', value: 28 },
-                  { name: 'Anil', value: 22 },
-                ]}
+                data={bairroChartData.length > 0 ? bairroChartData : []}
                 margin={{ top: 20, right: 30, left: 0, bottom: 60 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
@@ -450,13 +517,11 @@ const Splash = () => {
             }}>
               ▪
             </div>
-            <p className="splash-kpi-number" style={{
-              color: '#0066cc',
-            }}>
-              325
+            <p className="splash-kpi-number" style={{ color: '#0066cc' }} id="kpi-total">
+              {kpiTotal}
             </p>
             <p className="splash-kpi-label">
-              Total de Obras
+              Total de Solicitações
             </p>
           </div>
 
@@ -474,11 +539,7 @@ const Splash = () => {
             }}>
               ⟳
             </div>
-            <p className="splash-kpi-number" style={{
-              color: '#0066cc',
-            }}>
-              156
-            </p>
+            <p className="splash-kpi-number" style={{ color: '#0066cc' }} id="kpi-andamento">{kpiAndamento}</p>
             <p className="splash-kpi-label">
               Em Andamento
             </p>
@@ -498,11 +559,7 @@ const Splash = () => {
             }}>
               ✓
             </div>
-            <p className="splash-kpi-number" style={{
-              color: '#0066cc',
-            }}>
-              89
-            </p>
+            <p className="splash-kpi-number" style={{ color: '#0066cc' }} id="kpi-concluidas">{kpiConcluidas}</p>
             <p className="splash-kpi-label">
               Concluídas
             </p>
@@ -522,17 +579,15 @@ const Splash = () => {
             }}>
               ◇
             </div>
-            <p className="splash-kpi-number" style={{
-              color: '#0066cc',
-            }}>
-              27%
-            </p>
+            <p className="splash-kpi-number" style={{ color: '#0066cc' }} id="kpi-taxa">{kpiTaxa}</p>
             <p className="splash-kpi-label">
               Taxa de Conclusão
             </p>
           </div>
         </div>
       </div>
+
+      
 
       {/* Seção "Parcerias" */}
       <div id="parcerias" style={{

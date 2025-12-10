@@ -105,6 +105,33 @@ export const solicitacaoModel = {
     return data;
   },
 
+  // Deletar solicitação por id
+  async excluir(id) {
+    const { error } = await getSupabase()
+      .from('solicitacoes')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      console.error('Erro ao deletar solicitação:', error);
+      throw error;
+    }
+    return true;
+  },
+
+  // Atualizar campos da solicitação (admin)
+  async atualizarPorAdmin(id, dados) {
+    const { data, error } = await getSupabase()
+      .from('solicitacoes')
+      .update({ ...dados, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select();
+    if (error) {
+      console.error('Erro ao atualizar solicitação (admin):', error);
+      throw error;
+    }
+    return data[0];
+  },
+
   // Atualizar status
   async atualizarStatus(id, novoStatus, orgaoCompetente = null, justificativa = null) {
     const solicitacao = await this.buscarPorId(id);

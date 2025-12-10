@@ -56,6 +56,13 @@ export default function AdminPanel() {
   // Carregar solicitações
   useEffect(() => {
     carregarSolicitacoes();
+
+    // Polling para atualizações em tempo próximo-real
+    const interval = setInterval(() => {
+      carregarSolicitacoes();
+    }, 8000); // a cada 8 segundos
+
+    return () => clearInterval(interval);
   }, []);
 
   const carregarSolicitacoes = async () => {
@@ -63,7 +70,31 @@ export default function AdminPanel() {
     try {
       // Usar a rota de admin com autenticação
       const response = await api.get('/solicitacoes/admin/listar');
-      setSolicitacoes(response.data.solicitacoes || []);
+      let sols = response.data.solicitacoes || [];
+      setSolicitacoes(sols);
+
+      // If some solicitacoes are missing nome_usuario, fetch user names in batch
+      const missingIds = sols
+        .filter(s => !s.nome_usuario && (s.user_id || s.usuario_id))
+        .map(s => s.user_id || s.usuario_id)
+        .filter(Boolean);
+
+      if (missingIds.length > 0) {
+        try {
+          const idsParam = [...new Set(missingIds)].join(',');
+          const usersRes = await api.get('/admin/usuarios', { params: { ids: idsParam } });
+          const users = usersRes.data.users || [];
+          const usersMap = (users || []).reduce((acc, u) => { acc[u.id] = u; return acc; }, {});
+          const enriched = sols.map(s => ({
+            ...s,
+            nome_usuario: s.nome_usuario || usersMap[s.user_id || s.usuario_id]?.nome || usersMap[s.user_id || s.usuario_id]?.username || null,
+          }));
+          setSolicitacoes(enriched);
+          sols = enriched;
+        } catch (e) {
+          console.error('Erro ao buscar nomes de usuários:', e);
+        }
+      }
       setError('');
     } catch (err) {
       setError('Erro ao carregar solicitações: ' + (err.response?.data?.error || err.message));
@@ -79,10 +110,13 @@ export default function AdminPanel() {
     }
 
     try {
-      await api.patch(`/api/solicitacoes/admin/${selectedSolicitacao.id}/status`, {
+      const resp = await api.patch(`/solicitacoes/admin/${selectedSolicitacao.id}/status`, {
         status: newStatus,
         justificativa,
       });
+
+      // backend returns { message, solicitacao }
+      const updated = resp.data?.solicitacao || resp.data;
 
       setSuccess('Status atualizado com sucesso!');
       setNewStatus('');
@@ -90,9 +124,63 @@ export default function AdminPanel() {
       setSelectedSolicitacao(null);
       carregarSolicitacoes();
 
+      // Dispatch global event so other components (map, histórico) update immediately
+      try {
+        window.dispatchEvent(new CustomEvent('solicitacao:updated', { detail: updated }));
+      } catch (e) {
+        console.error('Erro ao dispatch evento solicitacao:updated', e);
+      }
+
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError('Erro ao atualizar status: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const deletarSolicitacao = async (id) => {
+    if (!confirm('Tem certeza que deseja deletar esta solicitação? Esta ação é irreversível.')) return;
+    try {
+      await api.delete(`/solicitacoes/admin/${id}`);
+      setSuccess('Solicitação deletada com sucesso');
+      setSelectedSolicitacao(null);
+      carregarSolicitacoes();
+
+      try {
+        window.dispatchEvent(new CustomEvent('solicitacao:deleted', { detail: { id } }));
+      } catch (e) {
+        console.error('Erro ao dispatch evento solicitacao:deleted', e);
+      }
+
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Erro ao deletar solicitação: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const salvarEdicao = async () => {
+    if (!selectedSolicitacao) return;
+    try {
+      const updatePayload = {
+        descricao: selectedSolicitacao.descricao,
+        bairro: selectedSolicitacao.bairro,
+        rua: selectedSolicitacao.rua,
+        numero: selectedSolicitacao.numero,
+        cep: selectedSolicitacao.cep,
+      };
+      const resp = await api.patch(`/solicitacoes/admin/${selectedSolicitacao.id}`, updatePayload);
+      const updated = resp.data?.solicitacao || resp.data;
+      setSuccess('Solicitação atualizada com sucesso');
+      carregarSolicitacoes();
+
+      try {
+        window.dispatchEvent(new CustomEvent('solicitacao:updated', { detail: updated }));
+      } catch (e) {
+        console.error('Erro ao dispatch evento solicitacao:updated', e);
+      }
+
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Erro ao salvar edição: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -340,9 +428,13 @@ export default function AdminPanel() {
                         <td style={{ padding: '10px', borderBottom: '1px solid #eee', color: '#FF8C00', fontWeight: '600' }}>{solicitacao.status}</td>
                         <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{solicitacao.bairro}</td>
                         <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{new Date(solicitacao.created_at).toLocaleDateString('pt-BR')}</td>
-                        <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{solicitacao.nome_usuario || solicitacao.usuario_id}</td>
+                        <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{solicitacao.nome_usuario || solicitacao.username || solicitacao.user_id || solicitacao.usuario_id}</td>
                         <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-                          <button style={{ padding: '6px 12px', backgroundColor: '#FF8C00', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }}>Ver</button>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button style={{ padding: '6px 12px', backgroundColor: '#FF8C00', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }} onClick={(e) => { e.stopPropagation(); setSelectedSolicitacao(solicitacao); }}>Ver</button>
+                            <button style={{ padding: '6px 12px', backgroundColor: '#4CAF50', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }} onClick={(e) => { e.stopPropagation(); setSelectedSolicitacao(solicitacao); }}>Editar</button>
+                            <button style={{ padding: '6px 12px', backgroundColor: '#f44336', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' }} onClick={(e) => { e.stopPropagation(); deletarSolicitacao(solicitacao.id); }}>Excluir</button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -369,17 +461,22 @@ export default function AdminPanel() {
                   <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500', fontSize: '14px' }}>
                     Descrição:
                   </label>
-                  <p style={{ margin: '0', padding: '10px', backgroundColor: '#f5f5f5', borderRadius: '6px', fontSize: '14px' }}>
-                    {selectedSolicitacao.descricao}
-                  </p>
+                  <textarea
+                    value={selectedSolicitacao.descricao}
+                    onChange={(e) => setSelectedSolicitacao({ ...selectedSolicitacao, descricao: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', minHeight: '80px', boxSizing: 'border-box' }}
+                  />
                 </div>
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500', fontSize: '14px' }}>
                     Localização:
                   </label>
-                  <p style={{ margin: '0', padding: '10px', backgroundColor: '#f5f5f5', borderRadius: '6px', fontSize: '14px' }}>
-                    {selectedSolicitacao.rua}, {selectedSolicitacao.numero} - {selectedSolicitacao.bairro} - CEP {selectedSolicitacao.cep}
-                  </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <input value={selectedSolicitacao.rua || ''} onChange={(e) => setSelectedSolicitacao({ ...selectedSolicitacao, rua: e.target.value })} style={{ padding: '10px', borderRadius: '6px' }} />
+                    <input value={selectedSolicitacao.numero || ''} onChange={(e) => setSelectedSolicitacao({ ...selectedSolicitacao, numero: e.target.value })} style={{ padding: '10px', borderRadius: '6px' }} />
+                    <input value={selectedSolicitacao.bairro || ''} onChange={(e) => setSelectedSolicitacao({ ...selectedSolicitacao, bairro: e.target.value })} style={{ padding: '10px', borderRadius: '6px' }} />
+                    <input value={selectedSolicitacao.cep || ''} onChange={(e) => setSelectedSolicitacao({ ...selectedSolicitacao, cep: e.target.value })} style={{ padding: '10px', borderRadius: '6px' }} />
+                  </div>
                 </div>
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500', fontSize: '14px' }}>
@@ -448,6 +545,10 @@ export default function AdminPanel() {
                 >
                   Atualizar Status
                 </button>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                  <button onClick={salvarEdicao} style={{ flex: 1, padding: '10px', backgroundColor: '#4CAF50', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600 }}>Salvar Edição</button>
+                  <button onClick={() => deletarSolicitacao(selectedSolicitacao.id)} style={{ flex: 1, padding: '10px', backgroundColor: '#f44336', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600 }}>Excluir Solicitação</button>
+                </div>
               </>
             ) : (
               <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>

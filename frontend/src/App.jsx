@@ -1,6 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SolicitacaoProvider } from "./contexts/SolicitacaoContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import ThemeToggle from "./components/ThemeToggle";
 import Dashboard from "./pages/Dashboard";
 import EstruturaDetail from "./pages/EstruturaDetail";
 import Estruturas from "./pages/Estruturas";
@@ -13,8 +16,11 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
+        <SolicitacaoProvider>
+          <ThemeProvider>
+            <BrowserRouter>
+              <ThemeToggle />
+              <Routes>
               <Route path="/" element={<Splash />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -25,9 +31,11 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="*" element={<div>Página não encontrada</div>} />
             </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </ErrorBoundary>
+            </BrowserRouter>
+          </ThemeProvider>
+        </SolicitacaoProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
